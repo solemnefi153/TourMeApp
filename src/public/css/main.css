@@ -1,0 +1,189 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro|Work+Sans);
+
+body, html, main {
+    height: 100%;
+}
+
+body{
+    margin:0;
+    position: fixed;
+    width: 100%;
+}
+
+#logo{
+    height: 40px;
+    width: 100px;
+}
+
+.searchSection {
+    background-image: url("/images/Dubai.JPG");
+    background-color: #DBF3FA;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 150px;
+}
+
+.promt_text{
+    font-family: Montserrat;
+    font-weight: 300;
+    text-align: center;
+    color: white;
+    margin-right: 10px;
+    margin-left: 10px;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 5px 0px;
+}
+
+#city_input {
+    border-radius: 4px;
+    border: solid 2.5px #ffffff;
+    opacity: 0.80;
+    font-family: Source Sans Pro;
+    font-size: 18px;
+    line-height: 1;
+    letter-spacing: 0.4px;
+    text-align: left;
+    color: Black;
+    background-color: white;
+    text-align: center;
+    width: 150px;
+    height: 30px;
+}
+
+#search_btn {
+    background-color: #51c5e7;
+    font-family: Source Sans Pro;
+    font-weight: 600;
+    text-align: center;
+    color: #ffffff;
+    border-radius: 5%;
+    border: none;
+    width: 80px;
+    height: 30px;
+    font-size: 18px;
+    text-align: center;
+    margin: 10px;
+}
+
+#search_btn:hover{
+    background-color: #2fbae2;
+}
+
+
+.alert{
+    position: fixed;
+    margin: 10px 80px;
+    color: #721c24;
+    background-color: #f8d7da;
+    padding: .75rem 1.25rem;
+    border: 1px solid #f5c6cb;
+    border-radius: .25rem;
+    z-index: 3;
+    display: none;
+}
+
+
+#mapdiv{
+    z-index: 1;
+    height: 100%;
+}
+
+.pupup_btn {
+    background-color: #51c5e7;
+    font-family: Source Sans Pro;
+    font-weight: 600;
+    text-align: center;
+    color: #ffffff;
+    border-radius: 5%;
+    border: none;
+    padding: 5px;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: None;
+    margin-left: 5px;
+}
+
+
+.pupup_btn:hover{
+    background-color: #2fbae2;
+}
+
+.pupup_content{
+    width: 200px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.popup_image{
+    width:50%;
+    height:100px;
+}
+
+footer{
+    font-family: Montserrat;
+    text-align: center;
+    background-color: #CDCDCD;
+    height: 30px;
+    font-size: 12px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 2;
+}
+
+footer a{
+    color:black;
+    text-decoration: none;
+}
+
+
+
+/* Media for mobile devices */
+@media (max-width: 550px) {
+
+    .searchSection {
+        background-image: url("/images/Dubai_small.JPG");
+        height: 150px;
+    }
+
+    #button {
+        width: 80px;
+        height: 30px;
+        font-size: 18px;
+
+        text-align: center;
+        color: #ffffff;
+    }
+
+    #city_input {
+        width: 150px;
+        height: 30px;
+    }
+}
+
+
+
+/* 340 really small screens  */
+@media (max-width: 340px) {
+    .searchSection {
+        background-image: url("/images/Dubai_xsmall.JPG");
+        height: 200px;
+    }
+
+    .text_input{
+        display: felx;
+        text-align: center;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+}
