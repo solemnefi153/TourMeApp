@@ -108,12 +108,13 @@ const removeAllMarkers = () => {
     //Remove all the current markers 
     $(".leaflet-marker-icon").remove();
     $(".leaflet-popup").remove();
+    $(".leaflet-marker-shadow").remove();
 };
 
 const notifyErrorOnSearch = (message, error='') => {
     console.log(error);
     $(".alert").text(message);
-    $(".alert").show().delay(3000).fadeOut();
+    $(".alert").show().delay(5000).fadeOut();
 }
 
 
