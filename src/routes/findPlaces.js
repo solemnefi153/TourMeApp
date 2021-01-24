@@ -5,28 +5,33 @@ const router = express.Router();
 router.get('/' ,async (req, res) => {
     //Make a requres to forsquare API to get venues based on a query
     //Link that currently searches  for arts and entrettainment
-    if(req.query.city != undefined){
-        const foursquareClientID = process.env.foursquareClientID;
-        const foursquareClientSecret = process.env.foursquareClientSecret;
-        const category_ID = '4d4b7105d754a06377d81259';
-        const city = req.query.city;
-        const baseURL = 'https://api.foursquare.com/v2/venues/explore';
-        const credentials = `&client_id=${foursquareClientID}&client_secret=${foursquareClientSecret}&v=20200616`
-        const URL = `${baseURL}?categoryId=${category_ID}&limit=10&radius=5000&near=${city}${credentials}`;
-        try {
+    try{
+        if(req.query.city != undefined){
+            const foursquareClientID = process.env.foursquareClientID;
+            const foursquareClientSecret = process.env.foursquareClientSecret;
+            const category_ID = '4d4b7105d754a06377d81259';
+            const city = req.query.city;
+            const baseURL = 'https://api.foursquare.com/v2/venues/explore';
+            const credentials = `&client_id=${foursquareClientID}&client_secret=${foursquareClientSecret}&v=20200616`
+            const URL = `${baseURL}?categoryId=${category_ID}&limit=10&radius=5000&near=${city}${credentials}`;
             const response = await fetch(URL);
             const jsonResponse = await response.json();
-            if (response.ok) {
-                res.send(jsonResponse)
-            }
+            res.status(jsonResponse.meta.code).send(jsonResponse);
         }
-        catch (err) {
-            res.send(new Error("Unable to process request")).status(400)
+        else{
+            res.status(400).send({Error: {
+                message: 'City must be defined'
+             }});
         }
     }
-    else(
-        res.send(new Error("Unable to process request")).status(400)
-    )
+    catch(error){
+        console.log(error);
+        res.status(500).send({
+            meta: {
+                errorDetail: 'Sonthing went wrong requesting venues'
+            },
+        })
+    }
 })
 
 
@@ -41,18 +46,20 @@ router.get('/photos' , async (req, res) => {
     try {
         const response = await fetch(URL);
         const jsonResponse = await response.json();
-        if (response.ok) {
-            res.send(jsonResponse)
-        }
         if(jsonResponse.meta.code == 429){
-            res.send(undefined)
+            // This will happen when the limit to make the premium request is reached. 
+            //We want to ignore this error
+            res.send(undefined);
         }
         else{
-            res.send(new Error("Unable to process request")).status(jsonResponse.meta.code)
+            res.status(jsonResponse.meta.code).send(jsonResponse);
         }
     }
-    catch (err) {
-        res.send(new Error("Unable to process request")).status(400)
+    catch (error) {
+        console.log(error);
+        res.status(500).send({Error: {
+            message: 'Somthing went wrong requesting venue image'
+         }})
     }
 })
 

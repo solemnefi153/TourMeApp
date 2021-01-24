@@ -10,6 +10,7 @@ mymap.addLayer(backgroundLayer);
 // Page Elements
 const input = $('#city_input');
 const search_btn = $('#search_btn');
+const hide_show_btn = $('#hide_show_btn');
 
 // Search for the venues in Foursquare
 const getVenues = async () => {
@@ -17,19 +18,18 @@ const getVenues = async () => {
     //We need the this to make an call to a Proxy api that uses private keys
     const baseHref = window.location.href
     const urlToFetch = `${baseHref}findPlaces?city=${city}`
-    try {
-        const response = await fetch(urlToFetch);
-        if (response.ok) {
-            const jsonResponse = await response.json();
-            const venues = jsonResponse.response.groups[0].items.map(item => item.venue);
-            const center = jsonResponse.response.geocode.center
-            //Return all the venues and an array with the coordinates of the city 
-            return {venues: venues, center: [center.lat - .025, center.lng]};
-        }
+    const response = await fetch(urlToFetch);
+    const jsonResponse = await response.json();
+    if (response.ok) {
+        const venues = jsonResponse.response.groups[0].items.map(item => item.venue);
+        const center = jsonResponse.response.geocode.center
+        //Return all the venues and an array with the coordinates of the city 
+        return {venues: venues, center: [center.lat - .025, center.lng]};
     }
-    catch (err) {
-        console.log('Unable to process the ')
+    else{
+        throw jsonResponse;
     }
+ 
 }
 
 //Generage a link to an image of a venue
@@ -54,7 +54,7 @@ const getVenuePhotoLink = async (venue_id) => {
         }
     }
     catch (error) {
-        return undefined;
+        console.log(error) ;
     }
 }
 
@@ -63,6 +63,7 @@ const renderVenuesOnMap =  (venues_object) => {
     //Set the view of the map to the City that was searched 
     mymap.setView(venues_object.center, 13);
     //Loop throuhg the venues and create a marker for each one of them
+    //Create a popup and try to get an image of the venue as well
     venues_object.venues.forEach( async (item, index) => {
         let venue = venues_object.venues[index];
         if(venue.name != undefined){
@@ -109,19 +110,34 @@ const removeAllMarkers = () => {
     $(".leaflet-popup").remove();
 };
 
-const notifyErrorOnSearch = () => {
-    $(".alert").show().delay(5000).fadeOut();
+const notifyErrorOnSearch = (message, error='') => {
+    console.log(error);
+    $(".alert").text(message);
+    $(".alert").show().delay(3000).fadeOut();
 }
 
 
 const executeSearch = () => {
-    //Remove previous markers 
-    removeAllMarkers();
-    //Fetch and render the new markers on the map  
-    getVenues().then(venues_object => renderVenuesOnMap(venues_object))
-        .catch(err => {
-            notifyErrorOnSearch();
-    })
+    //There must be a value provided for the city 
+    if(input.val() !== ''){
+        //Remove previous markers 
+        removeAllMarkers();
+        //Fetch and render the new markers on the map  
+        getVenues().then(venues_object => renderVenuesOnMap(venues_object))
+            .catch(error => {
+                if(error.meta.errorDetail !== undefined){
+                    notifyErrorOnSearch(error.meta.errorDetail, error);
+                }
+                else{
+                    notifyErrorOnSearch('Something went wrong' );
+                }
+            })
+    }
+    else{
+        notifyErrorOnSearch("Must provide a city name");
+    }
 }
 
 search_btn.click(executeSearch)
+
+
