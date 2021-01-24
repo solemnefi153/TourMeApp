@@ -13,7 +13,7 @@ router.get('/' ,async (req, res) => {
             const city = req.query.city;
             const baseURL = 'https://api.foursquare.com/v2/venues/explore';
             const credentials = `&client_id=${foursquareClientID}&client_secret=${foursquareClientSecret}&v=20200616`
-            const URL = `${baseURL}?categoryId=${category_ID}&limit=10&radius=5000&near=${city}${credentials}`;
+            const URL = `${baseURL}?categoryId=${category_ID}&limit=30&radius=5000&near=${city}${credentials}`;
             const response = await fetch(URL);
             const jsonResponse = await response.json();
             res.status(jsonResponse.meta.code).send(jsonResponse);
