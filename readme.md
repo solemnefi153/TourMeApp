@@ -19,13 +19,13 @@ While working on this project I develop stronger learning and researching skills
 Before you begin, you’ll need to register for a developer account for [Foursquare API ](https://developer.foursquare.com/developer/). Once you register your account, you will [create a new app](https://foursquare.com/developers/register).
 <br>
 
-The Foursquare API will then give you a client ID and a client secret key. Save these variables in your environment as foursquareClientID and foursquareClientSecret. 
+The Foursquare API will then give you a client ID and a client secret key. Save these variables in your .env file as FORSQUARE_CLIENT_ID and FORSQUARE_CLIENT_SECRET. 
 <br>
 
 This application runs with Node. Please install [Node version 14](https://nodejs.org/en/download/) in your environment.  
 <br>
 
-If you are running the application locally, run the following command in your terminal at the root folder of this project: <b>npm install</b> to install all dependencies) and <b>node src/index.js</b> to run the application in your local environment. 
+If you are running the application locally, run the following command in your terminal at the root folder of this project: <b>npm install</b> to install all dependencies
 
 # Useful Websites
 
