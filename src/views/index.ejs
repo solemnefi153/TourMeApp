@@ -25,10 +25,11 @@
                         <img src="/images/logo.JPG" alt="logo" id="logo" />
                     </div>
                     <h1 id='promt_text'>Where are you going next?</h1>
-                    <div class='text_input'>
-                        <input type="text" id="city_input" />
-                        <button id="search_btn">Search</button> 
-                    </div>
+                    <form id='searchForm'>
+                        <button type='submit' id="search_btn">Search</button>
+                        <label for='city_input'>City </label>
+                        <input type="text" id="city_input" placeholder="Dubai"/>
+                    </form>
                 </div>
                 <div id='hide_show_menu_btn'>
                     <ion-icon id='toggleIcon' name="chevron-back-outline"></ion-icon>

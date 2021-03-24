@@ -11,6 +11,7 @@ const app = express();
 app.engine('ejs', engine);
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '/src/views'));
+app.use(express.static(path.join(__dirname, '/src/public')));
 
 //Midleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,10 +20,6 @@ app.use(bodyParser.json());
 //Routers 
 app.use('/', require('./src/routes/map/index.js'));
 app.use('/findPlaces', require('./src/routes/places/index.js'));
-
-
-//Other Settings 
-app.use(express.static(path.join(__dirname, '/src/public')));
 
 //Start Server 
 const port = process.env.PORT || 5000

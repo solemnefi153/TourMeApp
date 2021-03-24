@@ -12,6 +12,7 @@ new L.Control.Zoom({ position: 'bottomright' }).addTo(mymap);
 const sideBar = $('#sideBar')
 const searchSection = $('#searchSection')
 const input = $('#city_input');
+const searchForm = $('#searchForm');
 const search_btn = $('#search_btn');
 const hide_show_menu_btn = $('#hide_show_menu_btn');
 const toggleIcon =  $('#toggleIcon');
@@ -151,7 +152,10 @@ const toggleShowSideBar = () => {
     }
 }
 
-search_btn.click(executeSearch)
+searchForm.submit(function(e){
+    e.preventDefault();
+    executeSearch();
+});
 hide_show_menu_btn.click(toggleShowSideBar)
 
 
