@@ -11,20 +11,27 @@
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin="" defer></script>
         <!-- Load jquery -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" defer></script>
+        <!-- load ioicons  -->
+        <script src="https://unpkg.com/ionicons@5.2.3/dist/ionicons.js"></script>
         <!-- load Scripts -->
         <script src="js/main.js" defer></script>
         
     </head>
     <body>
-        <header>
-            <img src="/images/logo.JPG" alt="logo" id="logo" />
-        </header>
         <main>
-            <div class="searchSection">
-                <h1 class='promt_text'>Where are you going next?</h1>
-                <div class='text_input'>
-                    <input type="text" id="city_input" />
-                    <button id="search_btn">Search</button> 
+            <div id='sideBar'>
+                <div id="searchSection">
+                    <div id='logo_container'>
+                        <img src="/images/logo.JPG" alt="logo" id="logo" />
+                    </div>
+                    <h1 id='promt_text'>Where are you going next?</h1>
+                    <div class='text_input'>
+                        <input type="text" id="city_input" />
+                        <button id="search_btn">Search</button> 
+                    </div>
+                </div>
+                <div id='hide_show_menu_btn'>
+                    <ion-icon id='toggleIcon' name="chevron-back-outline"></ion-icon>
                 </div>
             </div>
             <span class='alert'>Bad Request</span>

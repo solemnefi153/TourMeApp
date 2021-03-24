@@ -1,16 +1,21 @@
 //Load the map on the screen 
-const mymap = L.map('mapdiv');
+const mymap = L.map('mapdiv', { zoomControl: false });
 //Set view to Dubai
 mymap.setView([25.05, 55.17], 12);
 
 //Add layer to the map
 let backgroundLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png');
 mymap.addLayer(backgroundLayer);
+new L.Control.Zoom({ position: 'bottomright' }).addTo(mymap);
 
 // Page Elements
+const sideBar = $('#sideBar')
+const searchSection = $('#searchSection')
 const input = $('#city_input');
 const search_btn = $('#search_btn');
-const hide_show_btn = $('#hide_show_btn');
+const hide_show_menu_btn = $('#hide_show_menu_btn');
+const toggleIcon =  $('#toggleIcon');
+
 
 // Search for the venues in Foursquare
 const getVenues = async () => {
@@ -24,14 +29,13 @@ const getVenues = async () => {
         const venues = jsonResponse.response.groups[0].items.map(item => item.venue);
         const center = jsonResponse.response.geocode.center
         //Return all the venues and an array with the coordinates of the city 
-        return {venues: venues, center: [center.lat - .025, center.lng]};
+        return {venues: venues, center: [center.lat, center.lng]};
     }
     else{
         throw jsonResponse;
     }
  
 }
-
 //Generage a link to an image of a venue
 const getVenuePhotoLink = async (venue_id) => {
     const baseHref = window.location.href
@@ -57,7 +61,6 @@ const getVenuePhotoLink = async (venue_id) => {
         console.log(error) ;
     }
 }
-
 // Render markers of venues On map 
 const renderVenuesOnMap =  (venues_object) => {
     //Set the view of the map to the City that was searched 
@@ -103,26 +106,23 @@ const renderVenuesOnMap =  (venues_object) => {
         }
     });
 };
-
 const removeAllMarkers = () => {
     //Remove all the current markers 
     $(".leaflet-marker-icon").remove();
     $(".leaflet-popup").remove();
     $(".leaflet-marker-shadow").remove();
 };
-
+//Displays an error message on the map
 const notifyErrorOnSearch = (message, error='') => {
     console.log(error);
     $(".alert").text(message);
     $(".alert").show().delay(5000).fadeOut();
 }
-
-
+//Runs the program to render markers on a map based on a query
 const executeSearch = () => {
+    toggleShowSideBar();
     //There must be a value provided for the city 
     if(input.val() !== ''){
-        //Remove previous markers 
-        removeAllMarkers();
         //Fetch and render the new markers on the map  
         getVenues().then(venues_object => renderVenuesOnMap(venues_object))
             .catch(error => {
@@ -133,12 +133,25 @@ const executeSearch = () => {
                     notifyErrorOnSearch('Something went wrong' );
                 }
             })
+        //Remove previous markers 
+        removeAllMarkers();
     }
     else{
         notifyErrorOnSearch("Must provide a city name");
     }
 }
+//Compresses or expands the side bar
+const toggleShowSideBar = () => {
+    sideBar.toggleClass('hideSideBar');
+    if(toggleIcon.attr('name') == "chevron-back-outline"){
+        toggleIcon.attr('name', "search-outline");
+    }
+    else{
+        toggleIcon.attr('name', "chevron-back-outline");
+    }
+}
 
 search_btn.click(executeSearch)
+hide_show_menu_btn.click(toggleShowSideBar)
 
 
