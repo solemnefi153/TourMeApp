@@ -11,7 +11,8 @@ new L.Control.Zoom({ position: 'bottomright' }).addTo(mymap);
 // Page Elements
 const sideBar = $('#sideBar')
 const searchSection = $('#searchSection')
-const input = $('#city_input');
+const city_input = $('#city_input');
+const category_input = $('#category_input');
 const searchForm = $('#searchForm');
 const search_btn = $('#search_btn');
 const hide_show_menu_btn = $('#hide_show_menu_btn');
@@ -20,10 +21,11 @@ const toggleIcon =  $('#toggleIcon');
 
 // Search for the venues in Foursquare
 const getVenues = async () => {
-    const city = input.val();
+    const city = city_input.val();
+    const category = category_input.val();
     //We need the this to make an call to a Proxy api that uses private keys
     const baseHref = window.location.href
-    const urlToFetch = `${baseHref}findPlaces?city=${city}`
+    const urlToFetch = `${baseHref}findPlaces?city=${city}&category=${category}`
     const response = await fetch(urlToFetch);
     const jsonResponse = await response.json();
     if (response.ok) {
@@ -123,7 +125,7 @@ const notifyErrorOnSearch = (message, error='') => {
 const executeSearch = () => {
     toggleShowSideBar();
     //There must be a value provided for the city 
-    if(input.val() !== ''){
+    if(city_input.val() !== '' &&  category_input.val() !== null){
         //Fetch and render the new markers on the map  
         getVenues().then(venues_object => renderVenuesOnMap(venues_object))
             .catch(error => {
@@ -138,7 +140,7 @@ const executeSearch = () => {
         removeAllMarkers();
     }
     else{
-        notifyErrorOnSearch("Must provide a city name");
+        notifyErrorOnSearch("Must provide a city name and category");
     }
 }
 //Compresses or expands the side bar

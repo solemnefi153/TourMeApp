@@ -8,10 +8,10 @@ router.get('/' ,async (req, res) => {
     //Link that currently searches  for arts and entrettainment
     try{
         if(req.query.city != undefined){
-            const category_ID = '4d4b7105d754a06377d81259';
+            const category_ID = req.query.category;
             const city = req.query.city;
             const endpointPath = '/v2/venues/explore';
-            const queryString = `?categoryId=${category_ID}&limit=30&radius=5000&near=${city}&client_id=${config.foursquareClientID}&client_secret=${config.foursquareClientSecret}&v=20200616`;
+            const queryString = `?categoryId=${category_ID}&limit=20&radius=5000&near=${city}&client_id=${config.foursquareClientID}&client_secret=${config.foursquareClientSecret}&v=20200616`;
             const URL = `${config.forsquareUrl}${endpointPath}${queryString}`;
             const response = await fetch(URL);
             const jsonResponse = await response.json();
