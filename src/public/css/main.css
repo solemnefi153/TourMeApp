@@ -35,10 +35,11 @@ main{
     left: 0;
     display:flex;
     flex-direction: row;
-    height: 100%;
-    z-index: 3;
+    height: calc(100% - 30px);
+    z-index: 4;
     width: 500px;
     transition: .3s !important;
+    padding-bottom: 30px;
 }
 
 .hideSideBar{
@@ -55,7 +56,7 @@ main{
     justify-content: start;
     width: 500px;
     height: 100%;
-    z-index: 3;
+    z-index: 4;
 }
 
 
@@ -150,9 +151,34 @@ label{
     padding: .75rem 1.25rem;
     border: 1px solid #f5c6cb;
     border-radius: .25rem;
-    z-index: 3;
+    z-index: 5;
     display: none;
 }
+#weatherdiv{
+    display: flex;
+    flex-direction: column;
+    z-index: 4;
+    border-radius: 15px;
+    position: fixed;
+    top: 10px;
+    left: calc(100% - 120px);
+    background-color: #e7e5e5;
+    box-shadow:  5px 8px 8px grey;
+    width: 110px;
+}
+#weatherdiv p{
+  margin: 5px;
+  text-align: center;
+}
+
+#weatherdiv img{
+    width: 70%;
+    height: auto;
+    justify-self: center;
+    align-self: center;
+  }
+
+
 
 #mapdiv{
     z-index: 1;

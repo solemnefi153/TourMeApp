@@ -45,9 +45,15 @@ router.get('/photos' , async (req, res) => {
         if(jsonResponse.meta.code == 429){
             // This will happen when the limit to make the premium request is reached. 
             //We want to ignore this error
-            res.send(undefined);
+
+            res.send({
+                response: {
+                    photos: []
+                }   
+            });
         }
         else{
+
             res.status(jsonResponse.meta.code).send(jsonResponse);
         }
     }

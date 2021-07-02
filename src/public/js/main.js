@@ -17,6 +17,7 @@ const searchForm = $('#searchForm');
 const search_btn = $('#search_btn');
 const hide_show_menu_btn = $('#hide_show_menu_btn');
 const toggleIcon =  $('#toggleIcon');
+const weatherdiv = $('#weatherdiv');
 
 
 // Search for the venues in Foursquare
@@ -45,6 +46,7 @@ const getVenuePhotoLink = async (venue_id) => {
     try {
         const response = await fetch(urlToFetch);
         if (response.ok) {
+            console.log(response);
             const jsonResponse = await response.json();
             //Check if there is at least one image
             if(jsonResponse.response.photos.count > 0){
@@ -124,12 +126,35 @@ const renderVenuesOnMap =  (venues_object) => {
         }
     });
 };
+
+//Renders a div in the UI with information about the current city weather
+const renderWeather = (weather) => {
+    let weatherContent = createWeatherHTML(weather);
+    weatherdiv.html(weatherContent);
+}
+
+const createWeatherHTML = (weather) => {
+    return `
+        <img src="https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png">
+		<p>${kelvinToFahrenheit(weather.main.temp)}&deg;F</p>
+		<p>${weather.weather[0].description}</p>`;
+  	    
+}
+
+const kelvinToFahrenheit = k => ((k - 273.15) * 9 / 5 + 32).toFixed(0);
+
+
 const removeAllMarkers = () => {
     //Remove all the current markers 
     $(".leaflet-marker-icon").remove();
     $(".leaflet-popup").remove();
     $(".leaflet-marker-shadow").remove();
 };
+
+const removeWeatherInfo = () => {
+    weatherdiv.html('');
+}
+
 //Displays an error message on the map
 const notifyErrorOnSearch = (message, error='') => {
     console.log(error);
@@ -153,17 +178,18 @@ const executeSearch = () => {
                 }
             })
         getWeather()
-            .then(weather => console.log(weather))
+            .then(weather => {
+                renderWeather(weather);
+            })
             .catch(error => {
-                if(error.meta.errorDetail !== undefined){
-                    notifyErrorOnSearch(error.meta.errorDetail, error);
-                }
-                else{
-                    notifyErrorOnSearch('Something went wrong requesting the weather' );
-                }
+                console.log(error)
+                notifyErrorOnSearch('Something went wrong requesting the weather' );
             })
         //Remove previous markers 
         removeAllMarkers();
+        //Remove weather info 
+        removeWeatherInfo();
+
     }
     else{
         notifyErrorOnSearch("Must provide a city name and category");
