@@ -25,7 +25,7 @@ const getVenues = async () => {
     const category = category_input.val();
     //We need the this to make an call to a Proxy api that uses private keys
     const baseHref = window.location.href
-    const urlToFetch = `${baseHref}findPlaces?city=${city}&category=${category}`
+    const urlToFetch = `/places?city=${city}&category=${category}`
     const response = await fetch(urlToFetch);
     const jsonResponse = await response.json();
     if (response.ok) {
@@ -41,8 +41,7 @@ const getVenues = async () => {
 }
 //Generage a link to an image of a venue
 const getVenuePhotoLink = async (venue_id) => {
-    const baseHref = window.location.href
-    const urlToFetch = `${baseHref}findPlaces/photos?venue_id=${venue_id}`
+    const urlToFetch = `/places/photos?venue_id=${venue_id}`
     try {
         const response = await fetch(urlToFetch);
         if (response.ok) {
@@ -63,6 +62,22 @@ const getVenuePhotoLink = async (venue_id) => {
     catch (error) {
         console.log(error) ;
     }
+}
+// Search for the weather from openWeather
+const getWeather = async () => {
+    const city = city_input.val();
+    //We need the this to make an call to a Proxy api that uses private keys
+    const baseHref = window.location.href
+    const urlToFetch = `/weather?city=${city}`
+    const response = await fetch(urlToFetch);
+    const jsonResponse = await response.json();
+    if (response.ok) {
+        return jsonResponse;
+    }
+    else{
+        throw jsonResponse;
+    }
+ 
 }
 // Render markers of venues On map 
 const renderVenuesOnMap =  (venues_object) => {
@@ -127,13 +142,24 @@ const executeSearch = () => {
     //There must be a value provided for the city 
     if(city_input.val() !== '' &&  category_input.val() !== null){
         //Fetch and render the new markers on the map  
-        getVenues().then(venues_object => renderVenuesOnMap(venues_object))
+        getVenues()
+            .then(venues_object => renderVenuesOnMap(venues_object))
             .catch(error => {
                 if(error.meta.errorDetail !== undefined){
                     notifyErrorOnSearch(error.meta.errorDetail, error);
                 }
                 else{
-                    notifyErrorOnSearch('Something went wrong' );
+                    notifyErrorOnSearch('Something went wrong requesting venues' );
+                }
+            })
+        getWeather()
+            .then(weather => console.log(weather))
+            .catch(error => {
+                if(error.meta.errorDetail !== undefined){
+                    notifyErrorOnSearch(error.meta.errorDetail, error);
+                }
+                else{
+                    notifyErrorOnSearch('Something went wrong requesting the weather' );
                 }
             })
         //Remove previous markers 
