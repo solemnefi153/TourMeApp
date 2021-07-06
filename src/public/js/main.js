@@ -25,7 +25,6 @@ const getVenues = async () => {
     const city = city_input.val();
     const category = category_input.val();
     //We need the this to make an call to a Proxy api that uses private keys
-    const baseHref = window.location.href
     const urlToFetch = `/places?city=${city}&category=${category}`
     const response = await fetch(urlToFetch);
     const jsonResponse = await response.json();
@@ -46,7 +45,6 @@ const getVenuePhotoLink = async (venue_id) => {
     try {
         const response = await fetch(urlToFetch);
         if (response.ok) {
-            console.log(response);
             const jsonResponse = await response.json();
             //Check if there is at least one image
             if(jsonResponse.response.photos.count > 0){
@@ -143,7 +141,6 @@ const createWeatherHTML = (weather) => {
 
 const kelvinToFahrenheit = k => ((k - 273.15) * 9 / 5 + 32).toFixed(0);
 
-
 const removeAllMarkers = () => {
     //Remove all the current markers 
     $(".leaflet-marker-icon").remove();
@@ -210,6 +207,17 @@ searchForm.submit(function(e){
     e.preventDefault();
     executeSearch();
 });
-hide_show_menu_btn.click(toggleShowSideBar)
+
+hide_show_menu_btn.click(toggleShowSideBar);
+
+
+
+//Get the venue categories
+const getVenueCategories= async () => {
+    const urlToFetch = `/categories`;
+    const response = await fetch(urlToFetch);
+}
+
+getVenueCategories();
 
 

@@ -20,6 +20,7 @@ app.use(express.json());
 app.use('/', require('./src/routes/map/index.js'));
 app.use('/places', require('./src/routes/places/index.js'));
 app.use('/weather', require('./src/routes/weather/index.js'));
+app.use('/categories', require('./src/routes/categories/index.js'));
 
 //Start Server 
 const port = process.env.PORT || 5000

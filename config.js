@@ -11,15 +11,18 @@ const {
     FORSQUARE_CLIENT_SECRET,
     FOURSQUARE_URL,
     OPEN_WEATHER_KEY,
-    OPEN_WEATHER_URL
+    OPEN_WEATHER_URL, 
+    FOURSQUARE_VERSION_DATE
 } = process.env;
 
 assert(PORT, 'PORT environment variable is rquired');
 assert(FORSQUARE_CLIENT_ID, 'FORSQUARE_CLIENT_ID environment variable is rquired');
 assert(FORSQUARE_CLIENT_SECRET, 'FORSQUARE_CLIENT_SECRET environment variable is rquired');
 assert(FOURSQUARE_URL, 'FOURSQUARE_URL environment variable is rquired');
+assert(FOURSQUARE_VERSION_DATE, 'FOURSQUARE_VERSION_DATE environment variable is rquired');
 assert(OPEN_WEATHER_KEY, 'OPEN_WEATHER_KEY environment variable is rquired');
 assert(OPEN_WEATHER_URL, 'OPEN_WEATHER_URL environment variable is rquired');
+
 
 
 module.exports = {
@@ -27,6 +30,7 @@ module.exports = {
     foursquareClientID : FORSQUARE_CLIENT_ID,
     foursquareClientSecret: FORSQUARE_CLIENT_SECRET,
     forsquareUrl : FOURSQUARE_URL,
+    foursquareVersionDate : FOURSQUARE_VERSION_DATE,
     openWeatherKey: OPEN_WEATHER_KEY,
     openWeatherUrl : OPEN_WEATHER_URL
 }
