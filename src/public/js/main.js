@@ -13,6 +13,8 @@ const sideBar = $('#sideBar')
 const searchSection = $('#searchSection')
 const city_input = $('#city_input');
 const category_input = $('#category_input');
+const sub_category_input = $('#sub_category_input');
+const sub_category_input_label = $('#sub_category_input_label');
 const searchForm = $('#searchForm');
 const search_btn = $('#search_btn');
 const hide_show_menu_btn = $('#hide_show_menu_btn');
@@ -23,7 +25,12 @@ const weatherdiv = $('#weatherdiv');
 // Search for the venues in Foursquare
 const getVenues = async () => {
     const city = city_input.val();
-    const category = category_input.val();
+    let category = category_input.val();
+    //check if the subCategory has been set
+    if(sub_category_input.val() != null){
+        //Replace the requested category
+        category = sub_category_input.val();
+    }
     //We need the this to make an call to a Proxy api that uses private keys
     const urlToFetch = `/places?city=${city}&category=${category}`
     const response = await fetch(urlToFetch);
@@ -62,22 +69,6 @@ const getVenuePhotoLink = async (venue_id) => {
     catch (error) {
         console.log(error) ;
     }
-}
-// Search for the weather from openWeather
-const getWeather = async () => {
-    const city = city_input.val();
-    //We need the this to make an call to a Proxy api that uses private keys
-    const baseHref = window.location.href
-    const urlToFetch = `/weather?city=${city}`
-    const response = await fetch(urlToFetch);
-    const jsonResponse = await response.json();
-    if (response.ok) {
-        return jsonResponse;
-    }
-    else{
-        throw jsonResponse;
-    }
- 
 }
 // Render markers of venues On map 
 const renderVenuesOnMap =  (venues_object) => {
@@ -124,13 +115,32 @@ const renderVenuesOnMap =  (venues_object) => {
         }
     });
 };
-
-//Renders a div in the UI with information about the current city weather
-const renderWeather = (weather) => {
-    let weatherContent = createWeatherHTML(weather);
-    weatherdiv.html(weatherContent);
+//This function removes all markers on the map to start a new search
+const removeAllMarkers = () => {
+    //Remove all the current markers 
+    $(".leaflet-marker-icon").remove();
+    $(".leaflet-popup").remove();
+    $(".leaflet-marker-shadow").remove();
+};
+// Search for the weather from openWeather
+const getWeather = async () => {
+    const city = city_input.val();
+    //We need the this to make an call to a Proxy api that uses private keys
+    const baseHref = window.location.href
+    const urlToFetch = `/weather?city=${city}`
+    const response = await fetch(urlToFetch);
+    const jsonResponse = await response.json();
+    if (response.ok) {
+        return jsonResponse;
+    }
+    else{
+        throw jsonResponse;
+    }
+ 
 }
-
+//Function necesary to convert kelvin to fahrenheit
+const kelvinToFahrenheit = k => ((k - 273.15) * 9 / 5 + 32).toFixed(0);
+//Creates the necesary HTML do display a div with the weather of a city
 const createWeatherHTML = (weather) => {
     return `
         <img src="https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png">
@@ -138,20 +148,15 @@ const createWeatherHTML = (weather) => {
 		<p>${weather.weather[0].description}</p>`;
   	    
 }
-
-const kelvinToFahrenheit = k => ((k - 273.15) * 9 / 5 + 32).toFixed(0);
-
-const removeAllMarkers = () => {
-    //Remove all the current markers 
-    $(".leaflet-marker-icon").remove();
-    $(".leaflet-popup").remove();
-    $(".leaflet-marker-shadow").remove();
-};
-
+//Renders a div in the UI with information about the current city weather
+const renderWeather = (weather) => {
+    let weatherContent = createWeatherHTML(weather);
+    weatherdiv.html(weatherContent);
+}
+//This function removes the div containing the weather information
 const removeWeatherInfo = () => {
     weatherdiv.html('');
 }
-
 //Displays an error message on the map
 const notifyErrorOnSearch = (message, error='') => {
     console.log(error);
@@ -160,13 +165,14 @@ const notifyErrorOnSearch = (message, error='') => {
 }
 //Runs the program to render markers on a map based on a query
 const executeSearch = () => {
-    toggleShowSideBar();
     //There must be a value provided for the city 
     if(city_input.val() !== '' &&  category_input.val() !== null){
+        toggleShowSideBar();
         //Fetch and render the new markers on the map  
         getVenues()
             .then(venues_object => renderVenuesOnMap(venues_object))
             .catch(error => {
+                console.log(error)
                 if(error.meta.errorDetail !== undefined){
                     notifyErrorOnSearch(error.meta.errorDetail, error);
                 }
@@ -202,22 +208,59 @@ const toggleShowSideBar = () => {
         toggleIcon.attr('name', "chevron-back-outline");
     }
 }
-
+//Event listener to toggles the search menu
+hide_show_menu_btn.click(toggleShowSideBar);
+//This is an event listener of the form to submit the query and filters to the server
 searchForm.submit(function(e){
     e.preventDefault();
     executeSearch();
 });
-
-hide_show_menu_btn.click(toggleShowSideBar);
-
-
-
 //Get the venue categories
 const getVenueCategories= async () => {
     const urlToFetch = `/categories`;
     const response = await fetch(urlToFetch);
+    const jsonResponse = await response.json();
+    return jsonResponse;
 }
+//Get the venue categories
+const getVenueSubCategories= async (parentCategory) => {
+    const urlToFetch = `/categories/${parentCategory}`;
+    const response = await fetch(urlToFetch);
+    const jsonResponse = await response.json();
+    return jsonResponse;
+}
+//Request all the main categories and renders them on the select input field
+const loadMainCategoriesOnTheForm = async () => {
+    //Get the main categories 
+    const mainCategories = await getVenueCategories();
+    let newHtml = "<option value='' disabled selected hidden>----------</option> ";
+    mainCategories.forEach( category => {
+        newHtml += `
+        <option value='${category.id}'>${category.name}</option>`
+    })
+    category_input.html(newHtml);
+}
+loadMainCategoriesOnTheForm();
+//Request all the main categories and renders them on the select input field
+const loadSubCategoriesOnTheForm = async () => {
+    //Grab the current parent category
+    let parrentCategoryId = category_input.val();
+    //Get the main categories 
+    const subCategories = await getVenueSubCategories(parrentCategoryId);
+    let newHtml = "<option value='' disabled selected hidden>----------</option> ";
+    subCategories.forEach( category => {
+        newHtml += `
+        <option value='${category.id}'>${category.name}</option>`
+    })
+    sub_category_input.html(newHtml);
+    sub_category_input.show();
+    sub_category_input_label.show();
+}
+category_input.change(loadSubCategoriesOnTheForm);
 
-getVenueCategories();
+
+
+
+
 
 

@@ -6,12 +6,13 @@ const config  = require('../../../config');
 //Makes a request to the forsquare API to get all the categories
 router.get('/' ,async (req, res) => {
     try{
+        //Check if there is no requested category 
         const endpointPath = '/v2/venues/categories';
         const queryString = `?&client_id=${config.foursquareClientID}&client_secret=${config.foursquareClientSecret}&v=${config.foursquareVersionDate}`;
         const URL = `${config.forsquareUrl}${endpointPath}${queryString}`;
         const response = await fetch(URL);
         const jsonResponse = await response.json();
-        res.status(jsonResponse.meta.code).send(jsonResponse);
+        res.status(jsonResponse.meta.code).send(jsonResponse.response.categories);
     }
     catch(error){
         console.log(error);
