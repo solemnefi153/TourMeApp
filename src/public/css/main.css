@@ -157,7 +157,7 @@ label{
 #weatherdiv{
     display: flex;
     flex-direction: column;
-    z-index: 4;
+    z-index: 2;
     border-radius: 15px;
     position: fixed;
     top: 10px;
@@ -186,18 +186,20 @@ label{
 }
 
 .pupup_btn {
+    display: inline-block;
     background-color: #51c5e7;
     font-family: Source Sans Pro;
     font-weight: 600;
     text-align: center;
     color: #ffffff;
-    border-radius: 5%;
+    border-radius: 5px;
     border: none;
     padding: 5px;
     font-size: 18px;
     text-align: center;
     text-decoration: None;
     margin-left: 5px;
+    width: 100px;
 }
 
 .pupup_btn:hover{
