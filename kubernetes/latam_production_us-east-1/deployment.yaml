@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    maintainer: data-reliability
+    service: chameleon
+  name: chameleon
+  namespace: production
+spec:
+  minReadySeconds: 10
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      service: chameleon
+      track: stable
+  strategy:
+    rollingUpdate:
+      maxSurge: 30%
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        service: chameleon
+        track: stable
+      name: chameleon
+    spec:
+      containers:
+      - env:
+        - name: NODE_ENV
+          value: production
+        # TODO: Before enabling tracing in production environment, please inform the SREs in the #tracing slack channel.
+        #- name: JAEGER_AGENT_HOST
+        #  valueFrom:
+        #    fieldRef:
+        #      fieldPath: status.hostIP
+        #- name: JAEGER_SAMPLER_MANAGER_HOST_PORT
+        #  value: $(JAEGER_AGENT_HOST):5778
+        #- name: JAEGER_SAMPLER_TYPE
+        #  value: remote
+        #- name: JAEGER_SAMPLER_PARAM
+        #  value: "0.01"
+        - name: K8S_DEPLOYMENT_NONCE
+          value: "1507587202"
+        - name: statsdHost
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: statsdPort
+          value: "8125"
+        image: 250507473252.dkr.ecr.us-east-1.amazonaws.com/chameleon:$0.0.1
+        livenessProbe:
+          httpGet:
+            path: /healthcheck?from=k8s
+            port: 3000
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        name: chameleon
+        resources:
+          limits:
+            cpu: 1.0
+          requests:
+            cpu: 1.0
+        volumeMounts:
+        - mountPath: /usr/src/app/config
+          name: config-volume
+      volumes:
+      - configMap:
+          name: chameleon-0.0.1
+        name: config-volume

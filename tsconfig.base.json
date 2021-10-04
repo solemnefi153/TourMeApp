@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "declaration": false,
+    "module": "commonjs",
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "strict": true,
+    "target": "es2019",
+    "lib": ["es2019"],
+    "incremental": true,
+    "tsBuildInfoFile": "./.buildcache"
+  }
+}

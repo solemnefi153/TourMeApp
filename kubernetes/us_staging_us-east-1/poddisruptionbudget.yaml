@@ -1,0 +1,16 @@
+## WARNING: This object is immutable (https://github.com/kubernetes/kubernetes/issues/45398).
+## If you change it, the CI/CD pipeline will fail.
+## If you want to make a change, please ask @k8s-admins to remove it from cluster first.
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  labels:
+    service: chameleon
+    maintainer: data-reliability
+  name: chameleon
+  namespace: staging
+spec:
+  maxUnavailable: 30%
+  selector:
+    matchLabels:
+      service: chameleon

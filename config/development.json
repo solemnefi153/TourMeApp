@@ -1,0 +1,48 @@
+{
+    "_comment": "Do not modify this file! This is auto generated! Please modify master.config.json only.",
+    "meta": {
+        "name": "development",
+        "env": "development",
+        "region": "us-west-2",
+        "deploy": "local",
+        "market": "N/A test-only-env",
+        "service": "chameleon",
+        "toolVersion": "2.1.1",
+        "fileVersion": "1.0"
+    },
+    "serviceName": "chameleon",
+    "port": 3000,
+    "metrics": {
+        "host": "statsd",
+        "port": 8125
+    },
+    "logging": {
+        "src": true,
+        "level": "debug",
+        "impl": "Log4jsLogger",
+        "config": {
+            "appenders": {
+                "console": {
+                    "type": "console"
+                }
+            },
+            "categories": {
+                "default": {
+                    "appenders": [
+                        "console"
+                    ],
+                    "level": "all"
+                }
+            }
+        }
+    },
+    "demoOnly": "defaultValue",
+    "references": {
+        "demo": {
+            "url": "https://<<demo-us-west-2>>",
+            "config": {
+                "key": "value"
+            }
+        }
+    }
+}

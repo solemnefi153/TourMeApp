@@ -1,0 +1,62 @@
+{
+    "include": "./Hurley-Registry/piconfig/definitions/definitions.config.json",
+    "service": "chameleon",
+    "fileVersion": "1.0",
+    "targets": [
+        {"name": "development", "env": "development", "region": "us-west-2", "deploy": "local", "market": "N/A test-only-env"},
+        {"name": "integration", "env": "integration", "region": "us-west-2", "deploy": "local", "market": "N/A test-only-env"},
+        {"name": "emea-production-eu-central-1", "env": "production", "region": "eu-central-1", "deploy": "cluster", "market": "emea"},
+        {"name": "emea-production-eu-west-1", "env": "production", "region": "eu-west-1", "deploy": "cluster", "market": "emea"},
+        {"name": "us-production-us-west-2", "env": "production", "region": "us-west-2", "deploy": "cluster", "market": "us"},
+        {"name": "us-production-us-east-1", "env": "production", "region": "us-east-1", "deploy": "cluster", "market": "us"},
+        {"name": "us-production-us-east-2", "env": "production", "region": "us-east-2", "deploy": "cluster", "market": "us"},
+        {"name": "latam-production-us-east-1", "env": "production", "region": "us-east-1", "deploy": "cluster", "market": "latam"},
+        {"name": "latam-production-us-east-2", "env": "production", "region": "us-east-2", "deploy": "cluster", "market": "latam"},
+        {"name": "us-snp-us-west-2", "env": "snp", "region": "us-west-2", "deploy": "cluster", "market": "us"},
+        {"name": "us-snp-us-east-1", "env": "snp", "region": "us-east-1", "deploy": "cluster", "market": "us"},
+        {"name": "us-staging-us-west-2", "env": "staging", "region": "us-west-2", "deploy": "cluster", "market": "us"},
+        {"name": "us-staging-us-east-1", "env": "staging", "region": "us-east-1", "deploy": "cluster", "market": "us"}
+    ],
+    "references": [
+        {"service": "demo", "config": {"key": "value"}}
+    ],
+    "config": {
+        "serviceName": "chameleon",
+        "port": 3000,
+        "metrics": {
+            "host": "statsd",
+            "port": 8125
+        },
+        "when:default": {
+            "demoOnly": "defaultValue"
+        },
+        "when:env=development": {
+            "logging": {
+                "src": true,
+                "level": "debug",
+                "impl": "Log4jsLogger",
+                "config": {
+                    "appenders": {
+                        "console": {
+                            "type": "console"
+                        }
+                    },
+                    "categories": {
+                        "default": {
+                            "appenders": ["console"],
+                            "level": "all"
+                        }
+                    }
+                }
+            }
+        },
+        "when:env=production": {
+            "when:deploy=cluster": {
+                "demoOnly": "productionInCluster"
+            },
+            "when:deploy=local": {
+                "demoOnly": "productionInLocal"
+            }
+        }
+    }
+}
