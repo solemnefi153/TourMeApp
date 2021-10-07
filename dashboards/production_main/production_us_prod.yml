@@ -1,0 +1,318 @@
+name: "Hurley-Chameleon Production US"
+template: generic
+folder: "Hurley"
+uid_type: md5
+vars:
+  time_from: "now-1h"
+  time_to: "now"
+  panel_width: 4
+  panel_height: 4
+  environment: "production"
+  namespace: "production"
+  market: "us"
+  deployment: "chameleon"
+  service_name: "chameleon"
+  enable_alerts: true
+  alert_channels:
+    - "##dre-notifications"
+  prom_environment: "production"
+  prom_cluster: "hurleyus"
+  prom_account: "prod"
+  aws_account: "prod"
+  pod_label_mode: "short"
+  tags:
+    - "hurley"
+    - "chameleon"
+    - "production"
+    - "us-east-1"
+    - "us-east-2"
+    - "us-west-2"
+    - "us"
+annotations:
+  builtin:
+    template: builtin
+panels:
+  http_requests:
+    type: row
+    vars:
+      title: "HTTP Requests"
+      collapsed: "false"
+    panels:
+      hurley_service_http_counts_east:
+        type: panel
+        template: hurley_service_http_counts
+        vars:
+          region: "us-east-1"
+          panel_width: 6
+      hurley_service_http_error_rate_east:
+        type: panel
+        template: hurley_service_http_error_rate
+        vars:
+          region: "us-east-1"
+          panel_width: 6
+      hurley_service_http_counts_east2:
+        type: panel
+        template: hurley_service_http_counts
+        vars:
+          region: "us-east-2"
+          panel_width: 6
+      hurley_service_http_error_rate_east2:
+        type: panel
+        template: hurley_service_http_error_rate
+        vars:
+          region: "us-east-2"
+          panel_width: 6
+      hurley_service_http_latency_mean_95_east:
+        type: panel
+        template: hurley_service_http_latency_mean_95
+        vars:
+          region: "us-east-1"
+          panel_width: 6
+          alert_threshold: 300
+      hurley_service_http_latency_upper_95_east:
+        type: panel
+        template: hurley_service_http_latency_upper_95
+        vars:
+          region: "us-east-1"
+          panel_width: 6
+          alert_threshold: 2000
+      hurley_service_http_latency_mean_95_east2:
+        type: panel
+        template: hurley_service_http_latency_mean_95
+        vars:
+          region: "us-east-2"
+          panel_width: 6
+          alert_threshold: 300
+      hurley_service_http_latency_upper_95_east2:
+        type: panel
+        template: hurley_service_http_latency_upper_95
+        vars:
+          region: "us-east-2"
+          panel_width: 6
+          alert_threshold: 2000
+      hurley_service_http_latency_mean_99_east:
+        type: panel
+        template: hurley_service_http_latency_mean_99
+        vars:
+          region: "us-east-1"
+          panel_width: 6
+          alert_threshold: 600
+      hurley_service_http_latency_upper_99_east:
+        type: panel
+        template: hurley_service_http_latency_upper_99
+        vars:
+          region: "us-east-1"
+          panel_width: 6
+          alert_threshold: 3000
+      hurley_service_http_latency_mean_99_east2:
+        type: panel
+        template: hurley_service_http_latency_mean_99
+        vars:
+          region: "us-east-2"
+          panel_width: 6
+          alert_threshold: 600
+      hurley_service_http_latency_upper_99_east2:
+        type: panel
+        template: hurley_service_http_latency_upper_99
+        vars:
+          region: "us-east-2"
+          panel_width: 6
+          alert_threshold: 3000
+  pod_counts:
+    type: row
+    vars:
+      title: "Pod Counts"
+      collapsed: "false"
+    panels:
+      k8s_deployment_stat_pods_running_east:
+        type: panel
+        template: thanos_k8s_deployment_stat_pods_available
+        vars:
+          prom_region: "us-east-1"
+          panel_height: 2
+      k8s_deployment_stat_pods_unavailable_east:
+        type: panel
+        template: thanos_k8s_deployment_stat_pods_unavailable
+        vars:
+          prom_region: "us-east-1"
+          panel_height: 2
+      k8s_deployment_stat_pods_missing_east:
+        type: panel
+        template: thanos_k8s_deployment_stat_pods_missing
+        vars:
+          prom_region: "us-east-1"
+          panel_height: 2
+      k8s_deployment_stat_pods_running_east2:
+        type: panel
+        template: thanos_k8s_deployment_stat_pods_available
+        vars:
+          prom_region: "us-east-2"
+          panel_height: 2
+      k8s_deployment_stat_pods_unavailable_east2:
+        type: panel
+        template: thanos_k8s_deployment_stat_pods_unavailable
+        vars:
+          prom_region: "us-east-2"
+          panel_height: 2
+      k8s_deployment_stat_pods_missing_east2:
+        type: panel
+        template: thanos_k8s_deployment_stat_pods_missing
+        vars:
+          prom_region: "us-east-2"
+          panel_height: 2
+      k8s_deployment_pods_available_east:
+        type: panel
+        template: thanos_k8s_deployment_pods_available
+        vars:
+          prom_region: "us-east-1"
+      k8s_deployment_pods_unavailable_east:
+        type: panel
+        template: thanos_k8s_deployment_pods_unavailable
+        vars:
+          prom_region: "us-east-1"
+      k8s_deployment_pods_missing_east:
+        type: panel
+        template: thanos_k8s_deployment_pods_missing
+        vars:
+          prom_region: "us-east-1"
+      k8s_deployment_pods_available_east2:
+        type: panel
+        template: thanos_k8s_deployment_pods_available
+        vars:
+          prom_region: "us-east-2"
+      k8s_deployment_pods_unavailable_east2:
+        type: panel
+        template: thanos_k8s_deployment_pods_unavailable
+        vars:
+          prom_region: "us-east-2"
+      k8s_deployment_pods_missing_east2:
+        type: panel
+        template: thanos_k8s_deployment_pods_missing
+        vars:
+          prom_region: "us-east-2"
+  service_resources:
+    type: row
+    vars:
+      title: "Service Resources"
+      collapsed: "false"
+    panels:
+      k8s_service_cpu_east:
+        type: panel
+        template: thanos_k8s_service_cpu
+        vars:
+          prom_region: "us-east-1"
+          panel_width: 6
+      k8s_service_memory_east:
+        type: panel
+        template: thanos_k8s_service_memory
+        vars:
+          prom_region: "us-east-1"
+          panel_width: 6
+      k8s_service_cpu_east2:
+        type: panel
+        template: thanos_k8s_service_cpu
+        vars:
+          prom_region: "us-east-2"
+          panel_width: 6
+      k8s_service_memory_east2:
+        type: panel
+        template: thanos_k8s_service_memory
+        vars:
+          prom_region: "us-east-2"
+          panel_width: 6
+      k8s_service_network_rx_east:
+        type: panel
+        template: thanos_k8s_service_network_rx
+        vars:
+          prom_region: "us-east-1"
+          panel_width: 6
+      k8s_service_network_tx_east:
+        type: panel
+        template: thanos_k8s_service_network_tx
+        vars:
+          prom_region: "us-east-1"
+          panel_width: 6
+      k8s_service_network_rx_east2:
+        type: panel
+        template: thanos_k8s_service_network_rx
+        vars:
+          prom_region: "us-east-2"
+          panel_width: 6
+      k8s_service_network_tx_east2:
+        type: panel
+        template: thanos_k8s_service_network_tx
+        vars:
+          prom_region: "us-east-2"
+          panel_width: 6
+  pod_resources:
+    type: row
+    vars:
+      title: "Pod Resources"
+      collapsed: "false"
+    panels:
+      k8s_service_cpu_by_pod_east:
+        type: panel
+        template: thanos_k8s_service_cpu_by_pod
+        vars:
+          prom_region: "us-east-1"
+          panel_width: 6
+      k8s_service_memory_by_pod_east:
+        type: panel
+        template: thanos_k8s_service_memory_by_pod
+        vars:
+          prom_region: "us-east-1"
+          panel_width: 6
+      k8s_service_cpu_by_pod_east2:
+        type: panel
+        template: thanos_k8s_service_cpu_by_pod
+        vars:
+          prom_region: "us-east-2"
+          panel_width: 6
+      k8s_service_memory_by_pod_east2:
+        type: panel
+        template: thanos_k8s_service_memory_by_pod
+        vars:
+          prom_region: "us-east-2"
+          panel_width: 6
+      k8s_service_network_rx_by_pod_east:
+        type: panel
+        template: thanos_k8s_service_network_rx_by_pod
+        vars:
+          prom_region: "us-east-1"
+          panel_width: 6
+      k8s_service_network_tx_by_pod_east:
+        type: panel
+        template: thanos_k8s_service_network_tx_by_pod
+        vars:
+          prom_region: "us-east-1"
+          panel_width: 6
+      k8s_service_network_rx_by_pod_east2:
+        type: panel
+        template: thanos_k8s_service_network_rx_by_pod
+        vars:
+          prom_region: "us-east-2"
+          panel_width: 6
+      k8s_service_network_tx_by_pod_east2:
+        type: panel
+        template: thanos_k8s_service_network_tx_by_pod
+        vars:
+          prom_region: "us-east-2"
+          panel_width: 6
+  metrics_flow:
+    type: row
+    vars:
+      title: "Metrics Flow"
+      collapsed: "true"
+    panels:
+      metrics_flow_east:
+        type: panel
+        template: hurley_service_metrics_failed
+        vars:
+          region: "us-east-1"
+          panel_width: 12
+      metrics_flow_east2:
+        type: panel
+        template: hurley_service_metrics_failed
+        vars:
+          region: "us-east-2"
+          panel_width: 12

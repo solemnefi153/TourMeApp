@@ -1,0 +1,16 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: chameleon
+  namespace: production
+  labels:
+    maintainer: data-reliability
+    service: chameleon
+spec:
+  minReplicas: 3
+  maxReplicas: 21
+  targetCPUUtilizationPercentage: 50
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: chameleon

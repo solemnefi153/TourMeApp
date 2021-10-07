@@ -1,0 +1,6 @@
+[submodule "Hurley-Registry"]
+	path = Hurley-Registry
+	url = git@github.com:HBOCodeLabs/Hurley-Registry.git
+[submodule "Hurley-Make"]
+	path = Hurley-Make
+	url = git@github.com:HBOCodeLabs/Hurley-Make.git

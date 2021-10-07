@@ -1,0 +1,27 @@
+library('sre-jenkinsfile@master')
+
+pipeline {
+    agent {
+        label 'JenkinsWorker_Universal'
+    }
+
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+        stage('SCM Checkout') {
+            steps {
+                script {
+                    checkout scm
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                dashboards()
+            }
+        }
+    }
+}

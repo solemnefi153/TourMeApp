@@ -1,0 +1,120 @@
+pipelineVersion: 1.0
+metadata:
+  name: 'chameleon'
+  notifications:
+    slackChannel: '#dre-notifications'
+    victorOpsRoutingKey: 'DA'
+targets:
+- name: source
+  type: github
+  config:
+    gitUrl: 'git@github.com:HBOCodeLabs/Hurley-Chameleon.git'
+- type: build
+  dependsOn: source
+- type: docker
+  dependsOn: build
+  gates:
+  - type: integration
+- type: preparation
+  dependsOn: docker
+- name: release
+  type: ecr
+  dependsOn: preparation
+- name: us_staging_us-west-2
+  type: kubernetes
+  dependsOn: release
+  config:
+    market: us
+    region: us-west-2
+    env: staging
+  gates:
+  - type: staging-test
+  - type: dependency-test
+- name: us_staging_us-east-1
+  type: kubernetes
+  dependsOn: release
+  config:
+    market: us
+    region: us-east-1
+    env: staging
+  gates:
+  - type: staging-test
+  - type: dependency-test
+- name: commit-to-master
+  type: gitcommit
+  dependsOn: us_staging_us-west-2
+  config:
+    branch: master
+- name: us_snp_us-west-2
+  type: kubernetes
+  dependsOn: commit-to-master
+  config:
+    market: us
+    region: us-west-2
+    env: snp
+- name: us_snp_us-east-1
+  type: kubernetes
+  dependsOn: commit-to-master
+  config:
+    market: us
+    region: us-east-1
+    env: snp
+- name: commit-to-preproduction
+  type: gitcommit
+  dependsOn: us_snp_us-west-2
+  config:
+    branch: preproduction
+- name: us_production_us-west-2
+  type: kubernetes
+  dependsOn: commit-to-preproduction
+  config:
+    market: us
+    region: us-west-2
+    env: production
+- name: us_production_us-east-1
+  type: kubernetes
+  dependsOn: commit-to-preproduction
+  config:
+    market: us
+    region: us-east-1
+    env: production
+- name: us_production_us-east-2
+  type: kubernetes
+  dependsOn: commit-to-preproduction
+  config:
+    market: us
+    region: us-east-2
+    env: production
+- name: latam_production_us-east-1
+  type: kubernetes
+  dependsOn: commit-to-preproduction
+  config:
+    market: latam
+    region: us-east-1
+    env: production
+- name: latam_production_us-east-2
+  type: kubernetes
+  dependsOn: commit-to-preproduction
+  config:
+    market: latam
+    region: us-east-2
+    env: production
+- name: emea_production_eu-central-1
+  type: kubernetes
+  dependsOn: commit-to-preproduction
+  config:
+    market: emea
+    region: eu-central-1
+    env: production
+- name: emea_production_eu-west-1
+  type: kubernetes
+  dependsOn: commit-to-preproduction
+  config:
+    market: emea
+    region: eu-west-1
+    env: production
+- name: commit-to-production
+  type: gitcommit
+  dependsOn: us_production_us-west-2
+  config:
+    branch: production

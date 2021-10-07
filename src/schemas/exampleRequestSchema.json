@@ -1,0 +1,37 @@
+{
+  "body": {
+    "title": "Body schema for POST /example/:examplePathParam",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "exampleBodyValue"
+    ],
+    "properties": {
+      "exampleBodyValue": {
+        "type": "number",
+        "minimum": -42,
+        "maximum": 42
+      }
+    }
+  },
+  "params": {
+    "title": "Query schema for POST /example/:examplePathParam",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "examplePathParam",
+      "exampleQueryParam"
+    ],
+    "properties": {
+      "examplePathParam": {
+        "type": "string",
+        "pattern": "\\d+"
+      },
+      "exampleQueryParam": {
+        "type": "string",
+        "pattern": "^prefixed-with-this.*$"
+      }
+    }
+  }
+}
