@@ -4,7 +4,7 @@ import com.warnermedia.hurley.executor.HurleyPrPipelineExecutor
 
 String projectName = 'Hurley-Chameleon'
 
-node {
+node('build') {
   HurleyPrPipelineExecutor exe = new HurleyPrPipelineExecutor(this)
   exe.execute(projectName, env.BRANCH_NAME, env.CHANGE_ID)
 }

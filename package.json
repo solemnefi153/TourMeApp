@@ -1,6 +1,6 @@
 {
   "name": "chameleon",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Mock service to perform load test on the database to benchmark performance.",
   "private": true,
   "scripts": {

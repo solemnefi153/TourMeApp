@@ -1,6 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    kubernetes.io/change-cause: 'Release: 0.0.2'
   labels:
     maintainer: data-reliability
     service: chameleon
@@ -29,48 +31,37 @@ spec:
       - env:
         - name: NODE_ENV
           value: production
-        # TODO: Before enabling tracing in production environment, please inform the SREs in the #tracing slack channel.
-        #- name: JAEGER_AGENT_HOST
-        #  valueFrom:
-        #    fieldRef:
-        #      fieldPath: status.hostIP
-        #- name: JAEGER_SAMPLER_MANAGER_HOST_PORT
-        #  value: $(JAEGER_AGENT_HOST):5778
-        #- name: JAEGER_SAMPLER_TYPE
-        #  value: remote
-        #- name: JAEGER_SAMPLER_PARAM
-        #  value: "0.01"
         - name: K8S_DEPLOYMENT_NONCE
-          value: "1507587202"
+          value: "1633621762"
         - name: statsdHost
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
         - name: statsdPort
           value: "8125"
-        image: 250507473252.dkr.ecr.us-east-2.amazonaws.com/chameleon:$0.0.1
+        image: 250507473252.dkr.ecr.us-east-2.amazonaws.com/chameleon:0.0.2.bd4cb35
         livenessProbe:
           httpGet:
             path: /healthcheck?from=k8s
             port: 3000
           initialDelaySeconds: 60
           timeoutSeconds: 5
+        name: chameleon
         readinessProbe:
           httpGet:
             path: /ready
             port: 3000
           initialDelaySeconds: 10
           periodSeconds: 10
-        name: chameleon
         resources:
           limits:
-            cpu: 1.0
+            cpu: 1
           requests:
-            cpu: 1.0
+            cpu: 1
         volumeMounts:
         - mountPath: /usr/src/app/config
           name: config-volume
       volumes:
       - configMap:
-          name: chameleon-0.0.1
+          name: chameleon-0.0.2
         name: config-volume

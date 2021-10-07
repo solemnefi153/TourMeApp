@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   annotations:
-    kubernetes.io/change-cause: 'Release: 0.0.3'
+    kubernetes.io/change-cause: 'Release: 0.0.2'
   labels:
     maintainer: data-reliability
     service: chameleon
@@ -42,24 +42,24 @@ spec:
         - name: JAEGER_SAMPLER_PARAM
           value: "0.09"
         - name: K8S_DEPLOYMENT_NONCE
-          value: "1556318371"
-        image: 971383676178.dkr.ecr.us-west-2.amazonaws.com/chameleon:$0.0.1
+          value: "1633621762"
+        image: 971383676178.dkr.ecr.us-west-2.amazonaws.com/chameleon:0.0.2.bd4cb35
         livenessProbe:
           httpGet:
             path: /healthcheck?from=k8s
             port: 3000
           initialDelaySeconds: 60
           timeoutSeconds: 5
+        name: chameleon
         readinessProbe:
           httpGet:
             path: /ready
             port: 3000
           initialDelaySeconds: 10
           periodSeconds: 10
-        name: chameleon
         resources:
           limits:
-            cpu: 1.0
+            cpu: 1
           requests:
             cpu: 0.25
         volumeMounts:
@@ -67,5 +67,5 @@ spec:
           name: config-volume
       volumes:
       - configMap:
-          name: chameleon-0.0.1
+          name: chameleon-0.0.2
         name: config-volume
