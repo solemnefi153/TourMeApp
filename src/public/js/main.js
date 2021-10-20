@@ -1,3 +1,16 @@
+import PlacesEndpointAdapter from "./classes/PlacesEndpontAdapter.js";
+import WeatherEndpointAdapter from "./classes/WeatherEndpointAdapter.js";
+import CategoriesEndpointAdapter from "./classes/CategoriesEndpointAdapter.js";
+import MappingDataCollector from "./classes/MappingDataCollector.js";
+import ImagesDataCollector from "./classes/ImagesDataCollector.js";
+
+//Endpoint adapters & concrete endpoint visitors
+const placesEndpointAdapter = new PlacesEndpointAdapter();
+const weatherEndpointAdapter = new WeatherEndpointAdapter();
+const categoriesEndpointAdapter = new CategoriesEndpointAdapter();
+const mappingDataCollector = new MappingDataCollector();
+const imagesDataCollector = new ImagesDataCollector();
+
 //Load the map on the screen 
 const mymap = L.map('mapdiv', { zoomControl: false });
 //Set view to Dubai
@@ -22,54 +35,6 @@ const toggleIcon =  $('#toggleIcon');
 const weatherdiv = $('#weatherdiv');
 
 
-// Search for the venues in Foursquare
-const getVenues = async () => {
-    const city = city_input.val();
-    let category = category_input.val();
-    //check if the subCategory has been set
-    if(sub_category_input.val() != null){
-        //Replace the requested category
-        category = sub_category_input.val();
-    }
-    //We need the this to make an call to a Proxy api that uses private keys
-    const urlToFetch = `/places?city=${city}&category=${category}`
-    const response = await fetch(urlToFetch);
-    const jsonResponse = await response.json();
-    if (response.ok) {
-        const venues = jsonResponse.response.groups[0].items.map(item => item.venue);
-        const center = jsonResponse.response.geocode.center
-        //Return all the venues and an array with the coordinates of the city 
-        return {venues: venues, center: [center.lat, center.lng]};
-    }
-    else{
-        throw jsonResponse;
-    }
- 
-}
-//Generage a link to an image of a venue
-const getVenuePhotoLink = async (venue_id) => {
-    const urlToFetch = `/places/photos?venue_id=${venue_id}`
-    try {
-        const response = await fetch(urlToFetch);
-        if (response.ok) {
-            const jsonResponse = await response.json();
-            //Check if there is at least one image
-            if(jsonResponse.response.photos.count > 0){
-                const foto = jsonResponse.response.photos.items[0]
-                //This creates the link to the photo
-                const foto_link = `${foto.prefix}${foto.width}x${foto.height}${foto.suffix}`;
-                return foto_link;
-            }
-            //If there are no photos return undefided
-            else{
-                return undefined;
-            }
-        }
-    }
-    catch (error) {
-        console.log(error) ;
-    }
-}
 // Render markers of venues On map 
 const renderVenuesOnMap =  (venues_object) => {
     //Set the view of the map to the City that was searched 
@@ -80,10 +45,9 @@ const renderVenuesOnMap =  (venues_object) => {
         let venue = venues_object.venues[index];
         if(venue.name != undefined){
 
-            let image_link = undefined;
             //Generate a link to a venue photo 
             //This will return undefined if there has been more than 50 requests
-            image_link = await getVenuePhotoLink(venue.id);
+            let image_link = await imagesDataCollector.visitPlacesEndpoint(placesEndpointAdapter, {venueId : venue.id});
     
             //If there was not photo make the link point to the venue category icon
             if(image_link == undefined){
@@ -122,36 +86,20 @@ const removeAllMarkers = () => {
     $(".leaflet-popup").remove();
     $(".leaflet-marker-shadow").remove();
 };
-// Search for the weather from openWeather
-const getWeather = async () => {
-    const city = city_input.val();
-    //We need the this to make an call to a Proxy api that uses private keys
-    const baseHref = window.location.href
-    const urlToFetch = `/weather?city=${city}`
-    const response = await fetch(urlToFetch);
-    const jsonResponse = await response.json();
-    if (response.ok) {
-        return jsonResponse;
-    }
-    else{
-        throw jsonResponse;
-    }
- 
-}
 //Function necesary to convert kelvin to fahrenheit
 const kelvinToFahrenheit = k => ((k - 273.15) * 9 / 5 + 32).toFixed(0);
 //Creates the necesary HTML do display a div with the weather of a city
-const createWeatherHTML = (weather) => {
+const createWeatherHTML = (weather, weatherImageLink) => {
     return `
-        <img src="https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png">
+        <img src="${weatherImageLink}">
 		<p>${kelvinToFahrenheit(weather.main.temp)}&deg;F</p>
 		<p>${weather.weather[0].description}</p>`;
   	    
 }
 //Renders a div in the UI with information about the current city weather
-const renderWeather = (weather) => {
-    let weatherContent = createWeatherHTML(weather);
-    weatherdiv.html(weatherContent);
+const renderWeather = (weather, weatherImageLink) => {
+    let weatherHTMLComponent = createWeatherHTML(weather, weatherImageLink);
+    weatherdiv.html(weatherHTMLComponent);
 }
 //This function removes the div containing the weather information
 const removeWeatherInfo = () => {
@@ -164,15 +112,34 @@ const notifyErrorOnSearch = (message, error='') => {
     $(".alert").show().delay(5000).fadeOut();
 }
 //Runs the program to render markers on a map based on a query
-const executeSearch = () => {
+ const executeSearch =  () => {
     //There must be a value provided for the city 
     if(city_input.val() !== '' &&  category_input.val() !== null){
         toggleShowSideBar();
+        //Remove previous markers 
+        removeAllMarkers();
+        //Remove weather info 
+        removeWeatherInfo();
+        const city = city_input.val();
+        let category = category_input.val();
+        //check if the subCategory has been set
+        if(sub_category_input.val() != null){
+            //Replace the requested category
+            category = sub_category_input.val();
+        }
+
+        const endpointsParameters = {
+            city: city, 
+            category : category
+        }
+
         //Fetch and render the new markers on the map  
-        getVenues()
-            .then(venues_object => renderVenuesOnMap(venues_object))
+        mappingDataCollector.visitPlacesEndpoint(placesEndpointAdapter, endpointsParameters)
+            .then(venues_object => {
+                renderVenuesOnMap(venues_object)
+            })
             .catch(error => {
-                console.log(error)
+                console.log(error) 
                 if(error.meta.errorDetail !== undefined){
                     notifyErrorOnSearch(error.meta.errorDetail, error);
                 }
@@ -180,19 +147,16 @@ const executeSearch = () => {
                     notifyErrorOnSearch('Something went wrong requesting venues' );
                 }
             })
-        getWeather()
-            .then(weather => {
-                renderWeather(weather);
+
+        mappingDataCollector.visitWeatherEndpoint(weatherEndpointAdapter, endpointsParameters)
+            .then( async weather  =>  {
+                const weatherImageLink = await imagesDataCollector.visitWeatherEndpoint(weatherEndpointAdapter, endpointsParameters);
+                renderWeather(weather, weatherImageLink);
             })
             .catch(error => {
                 console.log(error)
                 notifyErrorOnSearch('Something went wrong requesting the weather' );
             })
-        //Remove previous markers 
-        removeAllMarkers();
-        //Remove weather info 
-        removeWeatherInfo();
-
     }
     else{
         notifyErrorOnSearch("Must provide a city name and category");
@@ -215,24 +179,10 @@ searchForm.submit(function(e){
     e.preventDefault();
     executeSearch();
 });
-//Get the venue categories
-const getVenueCategories= async () => {
-    const urlToFetch = `/categories`;
-    const response = await fetch(urlToFetch);
-    const jsonResponse = await response.json();
-    return jsonResponse;
-}
-//Get the venue categories
-const getVenueSubCategories= async (parentCategory) => {
-    const urlToFetch = `/categories/${parentCategory}`;
-    const response = await fetch(urlToFetch);
-    const jsonResponse = await response.json();
-    return jsonResponse;
-}
 //Request all the main categories and renders them on the select input field
 const loadMainCategoriesOnTheForm = async () => {
     //Get the main categories 
-    const mainCategories = await getVenueCategories();
+    const mainCategories = await categoriesEndpointAdapter.getVenueCategories();
     let newHtml = "<option value='' disabled selected hidden>----------</option> ";
     mainCategories.forEach( category => {
         newHtml += `
@@ -246,7 +196,7 @@ const loadSubCategoriesOnTheForm = async () => {
     //Grab the current parent category
     let parrentCategoryId = category_input.val();
     //Get the main categories 
-    const subCategories = await getVenueSubCategories(parrentCategoryId);
+    const subCategories = await categoriesEndpointAdapter.getVenueSubCategories(parrentCategoryId);
     let newHtml = "<option value='' disabled selected hidden>----------</option> ";
     subCategories.forEach( category => {
         newHtml += `
@@ -257,10 +207,3 @@ const loadSubCategoriesOnTheForm = async () => {
     sub_category_input_label.show();
 }
 category_input.change(loadSubCategoriesOnTheForm);
-
-
-
-
-
-
-
