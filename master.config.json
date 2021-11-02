@@ -1,62 +1,281 @@
 {
-    "include": "./Hurley-Registry/piconfig/definitions/definitions.config.json",
-    "service": "chameleon",
-    "fileVersion": "1.0",
-    "targets": [
-        {"name": "development", "env": "development", "region": "us-west-2", "deploy": "local", "market": "N/A test-only-env"},
-        {"name": "integration", "env": "integration", "region": "us-west-2", "deploy": "local", "market": "N/A test-only-env"},
-        {"name": "emea-production-eu-central-1", "env": "production", "region": "eu-central-1", "deploy": "cluster", "market": "emea"},
-        {"name": "emea-production-eu-west-1", "env": "production", "region": "eu-west-1", "deploy": "cluster", "market": "emea"},
-        {"name": "us-production-us-west-2", "env": "production", "region": "us-west-2", "deploy": "cluster", "market": "us"},
-        {"name": "us-production-us-east-1", "env": "production", "region": "us-east-1", "deploy": "cluster", "market": "us"},
-        {"name": "us-production-us-east-2", "env": "production", "region": "us-east-2", "deploy": "cluster", "market": "us"},
-        {"name": "latam-production-us-east-1", "env": "production", "region": "us-east-1", "deploy": "cluster", "market": "latam"},
-        {"name": "latam-production-us-east-2", "env": "production", "region": "us-east-2", "deploy": "cluster", "market": "latam"},
-        {"name": "us-snp-us-west-2", "env": "snp", "region": "us-west-2", "deploy": "cluster", "market": "us"},
-        {"name": "us-snp-us-east-1", "env": "snp", "region": "us-east-1", "deploy": "cluster", "market": "us"},
-        {"name": "us-staging-us-west-2", "env": "staging", "region": "us-west-2", "deploy": "cluster", "market": "us"},
-        {"name": "us-staging-us-east-1", "env": "staging", "region": "us-east-1", "deploy": "cluster", "market": "us"}
-    ],
-    "references": [
-        {"service": "demo", "config": {"key": "value"}}
-    ],
-    "config": {
-        "serviceName": "chameleon",
-        "port": 3000,
-        "metrics": {
-            "host": "statsd",
-            "port": 8125
+  "include": "./Hurley-Registry/piconfig/definitions/definitions.config.json",
+  "service": "chameleon",
+  "fileVersion": "1.0",
+  "targets": [
+    {
+      "name": "development",
+      "env": "development",
+      "region": "us-west-2",
+      "deploy": "local",
+      "market": "N/A test-only-env"
+    },
+    {
+      "name": "integration",
+      "env": "integration",
+      "region": "us-west-2",
+      "deploy": "local",
+      "market": "N/A test-only-env"
+    },
+    {
+      "name": "emea-production-eu-central-1",
+      "env": "production",
+      "region": "eu-central-1",
+      "deploy": "cluster",
+      "market": "emea"
+    },
+    {
+      "name": "emea-production-eu-west-1",
+      "env": "production",
+      "region": "eu-west-1",
+      "deploy": "cluster",
+      "market": "emea"
+    },
+    {
+      "name": "us-production-us-west-2",
+      "env": "production",
+      "region": "us-west-2",
+      "deploy": "cluster",
+      "market": "us"
+    },
+    {
+      "name": "us-production-us-east-1",
+      "env": "production",
+      "region": "us-east-1",
+      "deploy": "cluster",
+      "market": "us"
+    },
+    {
+      "name": "us-production-us-east-2",
+      "env": "production",
+      "region": "us-east-2",
+      "deploy": "cluster",
+      "market": "us"
+    },
+    {
+      "name": "latam-production-us-east-1",
+      "env": "production",
+      "region": "us-east-1",
+      "deploy": "cluster",
+      "market": "latam"
+    },
+    {
+      "name": "latam-production-us-east-2",
+      "env": "production",
+      "region": "us-east-2",
+      "deploy": "cluster",
+      "market": "latam"
+    },
+    {
+      "name": "us-snp-us-west-2",
+      "env": "snp",
+      "region": "us-west-2",
+      "deploy": "cluster",
+      "market": "us"
+    },
+    {
+      "name": "us-snp-us-east-1",
+      "env": "snp",
+      "region": "us-east-1",
+      "deploy": "cluster",
+      "market": "us"
+    },
+    {
+      "name": "us-staging-us-west-2",
+      "env": "staging",
+      "region": "us-west-2",
+      "deploy": "cluster",
+      "market": "us"
+    },
+    {
+      "name": "us-staging-us-east-1",
+      "env": "staging",
+      "region": "us-east-1",
+      "deploy": "cluster",
+      "market": "us"
+    }
+  ],
+  "references": [
+    {
+      "service": "demo",
+      "config": {
+        "key": "value"
+      }
+    }
+  ],
+  "config": {
+    "serviceName": "chameleon",
+    "port": 3000,
+    "metrics": {
+      "host": "statsd",
+      "port": 8125
+    },
+    "when:default": {
+      "demoOnly": "defaultValue"
+    },
+    "vaultConfig": {
+      "when:default": {
+        "kubernetesAuthClusterId": "hurley-nonprod-{{region}}"
+      },
+      "endpoint": "https://vault.api.hbo.com",
+      "approle": "service-chameleon",
+      "when:market=us": {
+        "when:env=production": {
+          "kubernetesAuthClusterId": "hurley-production-{{region}}",
+          "when:region=us-east-2": {
+            "kubernetesAuthClusterId": "dtc-hbogo_prod_hurleyus_{{region}}_1"
+          }
+        },
+        "when:env=staging": {
+          "kubernetesAuthClusterId": "hurley-nonprod-us-west-2"
+        }
+      },
+      "when:market=latam": {
+        "when:env=production": {
+          "kubernetesAuthClusterId": "dtc-prod_prod_hurleylatam_{{region}}_1"
+        }
+      },
+      "when:market=emea": {
+        "when:env=production": {
+          "kubernetesAuthClusterId": "dtc-prod_prod_hurleyeu_{{region}}_1"
+        }
+      }
+    },
+    "logging": {
+      "src": false,
+      "level": "info",
+      "when:deploy=local": {
+        "level": "debug"
+      },
+      "impl": "Log4jsLogger",
+      "config": {
+        "appenders": {
+          "console": {
+            "type": "console",
+            "layout": {
+              "type": "pattern",
+              "pattern": "[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] %c - %m"
+            }
+          }
+        },
+        "categories": {
+          "default": {
+            "appenders": [
+              "console"
+            ],
+            "level": "all"
+          }
+        }
+      }
+    },
+    "when:env=production": {
+      "when:deploy=cluster": {
+        "demoOnly": "productionInCluster"
+      },
+      "when:deploy=local": {
+        "demoOnly": "productionInLocal"
+      }
+    },
+    "requestSignatures": {
+      "chameleon": {
+        "path": "secret/hurley/chameleon/{{env}}",
+        "fileName": "signature",
+        "version": 1
+      },
+      "credentials": {
+        "path": "secret/hurley/credentials/{{env}}",
+        "fileName": "signature",
+        "version": 1
+      }
+    },
+    "aws": {
+      "region": "{{region}}",
+      "postgres": {
+        "credentialPrefix": {
+          "migrate": "ddl",
+          "read": "ro",
+          "write": "rw"
+        },
+        "secretsVersion": 1,
+        "port": 5432,
+        "when:deploy=local": {
+          "h:postgresInstances": "docker"
         },
         "when:default": {
-            "demoOnly": "defaultValue"
+          "h:postgresInstances": "{{env}}"
         },
-        "when:env=development": {
-            "logging": {
-                "src": true,
-                "level": "debug",
-                "impl": "Log4jsLogger",
-                "config": {
-                    "appenders": {
-                        "console": {
-                            "type": "console"
-                        }
-                    },
-                    "categories": {
-                        "default": {
-                            "appenders": ["console"],
-                            "level": "all"
-                        }
-                    }
-                }
-            }
+        "retryOpts": {
+          "max": 5,
+          "timeout": 500
         },
+        "poolConfig": {
+          "size": 3,
+          "idleTimeout": 1800000
+        },
+        "when:deploy=cluster": {
+          "vaultFilePath": "dre/service/chameleon/{{market}}/{{env}}"
+        },
+        "vaultFilePath": "secret/hurley/chameleon/{{env}}",
         "when:env=production": {
-            "when:deploy=cluster": {
-                "demoOnly": "productionInCluster"
-            },
-            "when:deploy=local": {
-                "demoOnly": "productionInLocal"
-            }
+          "secretsVersion": 1 
+        },
+        "when:env=snp": {
+          "secretsVersion": 1
+        },
+        "when:env=staging": {
+          "secretsVersion": 1
         }
+      }
     }
+  },
+  "definitions": {
+    "h:postgresInstances": {
+      "staging": {
+        "primary": {
+          "host": "chameleon-global-pgsql-staging-v1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+          "database": "chameleon_global"
+        },
+        "replicas": [
+          {
+            "host": "chameleon-global-pgsql-staging-v1-oregon-replica-1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+            "database": "chameleon_global"
+          }
+        ]
+      },
+      "snp": {
+        "primary": {
+          "host": "chameleon-global-pgsql-snp-v1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+          "database": "chameleon_global"
+        },
+        "when:region=us-west-2": {
+          "replicas": [
+            {
+              "host": "chameleon-global-pgsql-snp-v1-oregon-replica-1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+              "database": "chameleon_global"
+            }
+          ]
+        },
+        "when:region=us-east-1": {
+          "replicas": [
+            {
+              "host": "chameleon-global-pgsql-snp-v1-oregon-replica-1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com",
+              "database": "chameleon_global"
+            }
+          ]
+        }
+      },
+      "docker": {
+        "primary": {
+          "host": "chameleon-postgres",
+          "database": "chameleon_{{env}}"
+        },
+        "replicas": [
+          {
+            "host": "chameleon-postgres",
+            "database": "chameleon_{{env}}"
+          }
+        ]
+      }
+    }
+  }
 }

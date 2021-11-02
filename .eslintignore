@@ -6,3 +6,5 @@ node_modules_*
 dist
 .git
 config
+migrations/*
+postgress_tools/*

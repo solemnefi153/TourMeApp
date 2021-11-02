@@ -1,0 +1,196 @@
+#!/usr/bin/env node
+/**
+ * Copyright (c) 2019 Home Box Office, Inc. as an unpublished
+ * work. Neither this material nor any portion hereof may be copied or
+ * distributed without the express written consent of Home Box Office, Inc.
+ *
+ * This material also contains proprietary and confidential information
+ * of Home Box Office, Inc. and its suppliers, and may not be used by or
+ * disclosed to any person, in whole or in part, without the prior written
+ * consent of Home Box Office, Inc.
+ */
+
+// tslint:disable
+
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+
+const { Config } = require('@hbo/piconfig');
+const Secret = require('@hbo/hurley-secret');
+const hurley_logging = require('@hbo/hurley-logging');
+
+const dbMigrateArguments = process.argv.slice(2);
+const scriptName = 'node_modules/db-migrate/bin/db-migrate';
+
+if (dbMigrateArguments.length < 1) {
+    console.error(
+        'Usage: [NODE_ENV=<env>] tools/migrate <normal db-migrate options>'
+    );
+    process.exit(1);
+}
+
+if (dbMigrateArguments[0] === 'create') {
+    dbMigrateArguments.splice(1, 0, '--sql-file');
+}
+
+const verbose = dbMigrateArguments.indexOf('--verbose') !== -1;
+
+const configDir = path.join(__dirname, '..', 'config');
+const envConfigFileName = `${process.env.MARKET ? process.env.MARKET + '-' : ''}${process.env.NODE_ENV}${
+    process.env.KUBE_REGION ? '-' + process.env.KUBE_REGION : ''
+}.json`;
+const configFilePath = path.join(configDir, envConfigFileName);
+const configPureFilePath = path.join(configDir, `${process.env.NODE_ENV}.json`);
+const toolsConfigFilePath = path.join(
+    __dirname,
+    '..',
+    'tools_config',
+    envConfigFileName
+);
+const toolsConfigPureFilePath = path.join(
+    __dirname,
+    '..',
+    'tools_config',
+    `${process.env.NODE_ENV}.json`
+);
+
+if (fs.existsSync(configFilePath)) {
+    console.log(`Using config file ${configFilePath}`);
+} else if (fs.existsSync(toolsConfigPureFilePath)) {
+    fs.mkdirSync(configDir);
+    console.log(
+        `Copying config file from ${toolsConfigPureFilePath} to ${configPureFilePath}`
+    );
+    fs.writeFileSync(
+        configPureFilePath,
+        fs.readFileSync(toolsConfigPureFilePath)
+    );
+} else if (fs.existsSync(toolsConfigFilePath)) {
+    console.log(
+        `Copying config file from ${toolsConfigFilePath} to ${configFilePath}`
+    );
+    fs.mkdirSync(configDir);
+    fs.writeFileSync(configFilePath, fs.readFileSync(toolsConfigFilePath));
+    console.log(
+        `Copying config file from ${toolsConfigFilePath} to ${configPureFilePath}`
+    );
+    fs.writeFileSync(configPureFilePath, fs.readFileSync(toolsConfigFilePath));
+} else {
+    console.error(
+        `Config file not found in ${configFilePath}, ${toolsConfigFilePath} or ${toolsConfigPureFilePath} not found!`
+    );
+    process.exit(1);
+}
+
+Promise.resolve()
+    .then(loadConfigAndRunMigration)
+    .catch(onScriptError);
+
+async function loadConfigAndRunMigration() {
+    try {
+        const config = Config.getConfig();
+        const {
+            meta: { service: schemaName },
+            logging,
+            aws
+        } = config;
+        const loggingFactory = new hurley_logging.LoggerFactory(
+            schemaName,
+            logging
+        );
+        const secretInstance = Secret.using({
+            Logger: loggingFactory
+        });
+
+        const pg = aws.postgres;
+        const resolvedInstance = await secretInstance.createVaultSecretStorageInstance(
+            {
+                  endpoint: 'https://vault.api.hbo.com',
+            }
+        );
+        const secret = await resolvedInstance.getItemWithRetry({
+            item: `${pg.vaultFilePath}/postgres${
+                pg.secretsVersion ? '/v' + pg.secretsVersion : ''
+            }`,
+            ttl: 5000
+        });
+        const dbUrl = onConfigLoaded(pg, secret.data);
+        return await startMigration(dbUrl);
+    } catch (e) {
+        throw e;
+    }
+}
+
+// @ts-ignore
+function onConfigLoaded(pgConfig, secrets) {
+    const dbMigrateKey = pgConfig.credentialPrefix.migrate;
+    const dbMigrationUser = secrets[`${dbMigrateKey}_username`];
+    const dbMigrationPassword = escape(secrets[`${dbMigrateKey}_password`]);
+    const dbUrl = `postgresql://${dbMigrationUser}:${dbMigrationPassword}@${
+        pgConfig.primary.host
+    }:${pgConfig.port}/${pgConfig.primary.database}`;
+
+    console.log(
+        `DB Config: host: ${pgConfig.primary.host}, port: ${
+            pgConfig.port
+        }, database: ${pgConfig.primary.database}`
+    );
+
+    return dbUrl;
+}
+
+// @ts-ignore
+function startMigration(dbUrl) {
+    process.env.DATABASE_URL = dbUrl;
+
+    console.log('Executing actions: ', dbMigrateArguments);
+
+    const dbMigrateProcess = spawn(scriptName, dbMigrateArguments, {
+        env: process.env,
+        stdio: 'inherit'
+    });
+
+    dbMigrateProcess.on('close', printMigrateAndDumpSchema);
+    dbMigrateProcess.on('error', onScriptError);
+    return Promise.resolve();
+}
+
+// @ts-ignore
+function printMigrateAndDumpSchema(migrateStatus, signal) {
+    if (
+        verbose &&
+        (dbMigrateArguments[0] === 'up' || dbMigrateArguments[0] === 'down')
+    ) {
+        console.log('\n\n==========\nSchema:\n===========\n\n');
+        // @ts-ignore
+        const dumper = spawn('pg_dump', ['-s', process.env.DATABASE_URL], {
+            env: process.env,
+            stdio: 'inherit'
+        });
+
+        // @ts-ignore
+        dumper.on('close', function printSchemaAndExit(dumpStatus, subSignal) {
+            console.log(
+                '\n\nSchema dump done, status=' +
+                    dumpStatus +
+                    ' signal=' +
+                    subSignal
+            );
+            console.log(
+                '\n\nMigrate done, status=' +
+                    migrateStatus +
+                    ' signal=' +
+                    subSignal
+            );
+        });
+    } else {
+        process.exit(0);
+    }
+}
+
+// @ts-ignore
+function onScriptError(err) {
+    console.log('Script Failed:', err);
+    process.exit(1);
+}

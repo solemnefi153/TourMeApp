@@ -7,7 +7,7 @@
         "deploy": "cluster",
         "market": "us",
         "service": "chameleon",
-        "toolVersion": "2.1.1",
+        "toolVersion": "2.2.0",
         "fileVersion": "1.0"
     },
     "serviceName": "chameleon",
@@ -15,6 +15,78 @@
     "metrics": {
         "host": "statsd",
         "port": 8125
+    },
+    "vaultConfig": {
+        "endpoint": "https://vault.api.hbo.com",
+        "approle": "service-chameleon",
+        "kubernetesAuthClusterId": "hurley-nonprod-us-east-1"
+    },
+    "logging": {
+        "src": false,
+        "level": "info",
+        "impl": "Log4jsLogger",
+        "config": {
+            "appenders": {
+                "console": {
+                    "type": "console",
+                    "layout": {
+                        "type": "pattern",
+                        "pattern": "[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] %c - %m"
+                    }
+                }
+            },
+            "categories": {
+                "default": {
+                    "appenders": [
+                        "console"
+                    ],
+                    "level": "all"
+                }
+            }
+        }
+    },
+    "requestSignatures": {
+        "chameleon": {
+            "path": "secret/hurley/chameleon/snp",
+            "fileName": "signature",
+            "version": 1
+        },
+        "credentials": {
+            "path": "secret/hurley/credentials/snp",
+            "fileName": "signature",
+            "version": 1
+        }
+    },
+    "aws": {
+        "region": "us-east-1",
+        "postgres": {
+            "credentialPrefix": {
+                "migrate": "ddl",
+                "read": "ro",
+                "write": "rw"
+            },
+            "secretsVersion": 1,
+            "port": 5432,
+            "retryOpts": {
+                "max": 5,
+                "timeout": 500
+            },
+            "poolConfig": {
+                "size": 3,
+                "idleTimeout": 1800000
+            },
+            "vaultFilePath": "dre/service/chameleon/us/snp",
+            "primary": {
+                "host": "chameleon-global-pgsql-snp-v1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+                "database": "chameleon_global"
+            },
+            "replicas": [
+                {
+                    "host": "chameleon-global-pgsql-snp-v1-oregon-replica-1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com",
+                    "database": "chameleon_global"
+                }
+            ]
+        }
     },
     "demoOnly": "defaultValue",
     "references": {

@@ -1,0 +1,44 @@
+TOOLS_DIRECTORY=$(APP_DIR)/postgres_tools
+POSTGRES_VERSION=11
+
+VAULT_ENDPOINT_WEST := https://vault.api.hbo.com
+VAULT_TOKEN ?= $(shell (vault login -method=aws -field=token -address=${VAULT_ENDPOINT_WEST} role=default-role))
+
+VAULT_PASSWORD?=$(shell (vault read  -address=${VAULT_ENDPOINT_WEST} -field=ddl_password secret/hurley/${ARTIFACT_NAME}/development/postgres/v1))
+
+postgres-migrate-start-nodocker:
+	VAULT_TOKEN=$(VAULT_TOKEN) VAULT_ENDPOINT_WEST=$(VAULT_ENDPOINT_WEST) /bin/bash postgres_tools/local-setup-nodocker.sh
+
+## Start postgres, setup the database and initialize the schema
+postgres-migrate-start-docker:
+	make start-postgres version=${POSTGRES_VERSION} wait-time=10 network-alias=$(ARTIFACT_NAME)-postgres extra-docker-args="-e POSTGRES_HOST_AUTH_METHOD=trust"
+	make postgres-setup-docker
+	make migrate-db-docker
+
+# setup the docker database
+postgres-setup-docker:
+	docker rm -f ${ARTIFACT_CONTAINER_NAME}-bootstrap 2>/dev/null || true
+	${INFO}"bootstrapping postgres database..."
+	docker run --rm 		--name ${ARTIFACT_CONTAINER_NAME}-bootstrap 		--network $(ARTIFACT_NETWORK) 		-v ${PROJECT_DIR}:${APP_DIR} 		-e VAULT_PASSWORD=$(VAULT_PASSWORD) 		postgres ${TOOLS_DIRECTORY}/local-setup-docker.sh
+
+# Migrate the database using db-migrate for local docker only
+migrate-db-docker:
+	docker rm -f ${ARTIFACT_CONTAINER_NAME}-migrate 2>/dev/null || true
+	${INFO}"Running database migration script for local docker${CNone}"
+	docker run --rm 	--name ${ARTIFACT_CONTAINER_NAME}-migrate 	--network ${ARTIFACT_NETWORK} 	-v ${PROJECT_DIR}:${APP_DIR} 	-v ${USER_HOME}/.aws:/root/.aws 	-e NODE_ENV=$(NODE_ENV) 	-e VAULT_TOKEN=$(VAULT_TOKEN) 	${DOCKER_NODE_BUILD_IMAGE} ${TOOLS_DIRECTORY}/migrate up
+
+# Migrate the database using db-migrate.
+# Use always <MARKET>-<NODE_ENV>-<KUBE_REGION> config as db migration config
+# KUBE_REGION default is us-west-2
+migrate-db-cluster:
+	${INFO}"Running database migration script for cluster: $(call HLIGHT,$(DOCKER_REGISTRY)/$(ARTIFACT_NAME):$(ARTIFACT_VERSION)-migration) ${CNone}"
+	@docker run --rm 	--entrypoint ${TOOLS_DIRECTORY}/migrate 	-e KUBE_REGION=$(KUBE_REGION) 	-e NODE_ENV=$(NODE_ENV) -e MARKET=$(MARKET) 	-e VAULT_TOKEN=$(VAULT_TOKEN) 	$(DOCKER_REGISTRY)/$(ARTIFACT_NAME):$(ARTIFACT_VERSION)-migration up
+
+migration-images:
+	${INFO}"Creating migration images: $(call HLIGHT,$(ARTIFACT_NAME):$(ARTIFACT_VERSION)-migration)"
+	@make -s npm-ci
+	@make -s node-docker-prepare
+	@docker build -t $(ARTIFACT_NAME):$(ARTIFACT_VERSION)-migration -f Dockerfile.db-migrate .
+	${INFO} "Publishing the release"
+	@make -s docker-publish region=us-west-2 repository=$(ARTIFACT_NAME) tag=$(ARTIFACT_VERSION)-migration
+	@make -s docker-publish region=us-east-1 repository=$(ARTIFACT_NAME) tag=$(ARTIFACT_VERSION)-migration

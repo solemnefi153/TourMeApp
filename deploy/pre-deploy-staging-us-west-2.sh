@@ -1,0 +1,1 @@
+make migrate-db-cluster NODE_ENV=staging KUBE_ENV=us-west-2 MARKET=us

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Home Box Office, Inc. as an unpublished
+ * Copyright (c) 2019 Home Box Office, Inc. as an unpublished
  * work. Neither this material nor any portion hereof may be copied or
  * distributed without the express written consent of Home Box Office, Inc.
  *
@@ -19,7 +19,10 @@ describe('Globals', () => {
         meta: { service: serviceName },
         metrics: { key1: 'one', key2: 2 },
     };
-    const piConfig = { Config: {} as { getConfig: jest.Mock<any, any> } };
+    const configSource = {} as { getConfig: jest.Mock<any, any> };
+    const piConfig = {
+        Config: {} as { createDefaultConfig: jest.Mock<any, any> },
+    };
 
     const aLogger = { key: 'aLogger' };
     const loggerFactoryInstance = {} as { getLogger: any };
@@ -31,31 +34,49 @@ describe('Globals', () => {
     let routeFactory: jest.Mock<any, any>;
     const hurleyLoader = {} as { RouteFactory: jest.Mock<any, any> };
 
+    let authCheck: jest.Mock<any, any>;
+    const hurleyAuthCheck = {} as { using: jest.Mock<any, any> };
+
     let globalsModule: typeof import('../../src/Globals');
 
     beforeEach(() => {
-        piConfig.Config.getConfig = jest
+        configSource.getConfig = jest
             .fn()
-            .mockName('mockedGetConfig')
+            .mockName('mockedConfigSource')
             .mockReturnValue(config);
+        piConfig.Config.createDefaultConfig = jest
+            .fn()
+            .mockName('mockedDefaultConfig')
+            .mockReturnValue(configSource);
+
         loggerFactoryInstance.getLogger = jest.fn().mockReturnValue(aLogger);
+
         hurleyLogging.LoggerFactory = jest
             .fn()
             .mockName('mockedLoggerFactory')
             .mockImplementation(() => loggerFactoryInstance);
+
         hurleyMetrics.MetricsClient = jest
             .fn()
             .mockName('mockedMetricsClient')
             .mockImplementation(() => metricsClient);
+
         routeFactory = jest.fn().mockName('mockedRouteFactory');
+
         hurleyLoader.RouteFactory = jest
             .fn()
             .mockName('mockedHurleyLoader')
             .mockImplementation(() => routeFactory);
 
+        authCheck = jest.fn().mockName('mockedAuthCheck');
+        hurleyAuthCheck.using = jest
+            .fn()
+            .mockName('mockedHurleyAuthcheck')
+            .mockImplementation(() => authCheck);
         jest.mock('@hbo/hurley-loader', () => hurleyLoader);
         jest.mock('@hbo/hurley-logging', () => hurleyLogging);
         jest.mock('@hbo/hurley-metrics', () => hurleyMetrics);
+        jest.mock('@hbo/hurley-authcheck', () => hurleyAuthCheck);
         jest.mock('@hbo/piconfig', () => piConfig);
 
         jest.resetModules();
@@ -63,7 +84,7 @@ describe('Globals', () => {
     });
 
     it('creates and returns the default config', () => {
-        expect(globalsModule.Globals.Config).toBe(piConfig.Config);
+        expect(globalsModule.Globals.Config).toBe(configSource);
     });
 
     it('returns the logger factory', () => {
@@ -84,7 +105,7 @@ describe('Globals', () => {
     it('sets service name in metrics configuration', () => {
         const expectedConfig = _.assign(
             { serviceName },
-            piConfig.Config.getConfig().metrics
+            configSource.getConfig().metrics
         );
         expect(hurleyMetrics.MetricsClient).toHaveBeenCalledWith(
             expectedConfig
@@ -100,9 +121,7 @@ describe('Globals', () => {
     });
 
     it('returns sets the metrics client, a logger and configSource for the route factory', () => {
-        expect(loggerFactoryInstance.getLogger).toHaveBeenCalledWith(
-            'loader.routes'
-        );
+        expect(loggerFactoryInstance.getLogger).toHaveBeenCalledWith('routes');
         expect(hurleyLoader.RouteFactory).toHaveBeenCalledWith(
             metricsClient,
             aLogger,

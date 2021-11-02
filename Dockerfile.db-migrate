@@ -1,0 +1,12 @@
+FROM 971383676178.dkr.ecr.us-west-2.amazonaws.com/node:8.15.1-slim
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+COPY dist              ./dist
+COPY generated         ./generated
+COPY node_modules      ./node_modules
+COPY migrations        ./migrations
+COPY postgres_tools    ./postgres_tools
+COPY config            ./tools_config
+COPY package.json       package.json

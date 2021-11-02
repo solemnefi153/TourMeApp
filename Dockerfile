@@ -4,6 +4,7 @@ LABEL maintainer="data-reliability"
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
+
 COPY dist              ./dist
 COPY generated         ./generated
 COPY node_modules_prod ./node_modules

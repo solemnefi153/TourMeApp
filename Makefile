@@ -2,6 +2,7 @@ include Hurley-Make/Makefile.kubernetes
 include Hurley-Make/Makefile.docker
 include Hurley-Make/Makefile.node
 include Hurley-Make/Makefile.common
+include Makefile.postgres
 
 ARTIFACT_MAINTAINER=data-reliability
 SERVICE_PORT=3000

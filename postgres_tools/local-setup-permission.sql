@@ -1,0 +1,1 @@
+GRANT ALL PRIVILEGES ON SCHEMA public TO migrations_user;

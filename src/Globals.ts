@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Home Box Office, Inc. as an unpublished
+ * Copyright (c) 2019 Home Box Office, Inc. as an unpublished
  * work. Neither this material nor any portion hereof may be copied or
  * distributed without the express written consent of Home Box Office, Inc.
  *
@@ -14,37 +14,38 @@ import { LoggerFactory } from '@hbo/hurley-logging';
 import { MetricsClient } from '@hbo/hurley-metrics';
 import { Config } from '@hbo/piconfig';
 
-export interface IGlobals {
-    Config: typeof Config;
-    LoggerFactory: LoggerFactory;
-    RouteFactory: RouteFactory;
-    metrics: MetricsClient;
-    serviceName: string;
-}
+// tslint:disable-next-line:no-var-requires
+const hurleyAuthCheck = require('@hbo/hurley-authcheck'); // tslint:disable-line:variable-name
+const configSource: Config = Config.createDefaultConfig();
 
 const {
     meta: { service: serviceName },
     logging,
     metrics,
-} = Config.getConfig();
-
-const metricsConfig: Record<string, unknown> = Object.assign(
-    { serviceName },
-    metrics
-);
+} = configSource.getConfig();
+const metricsConfig: object = Object.assign({ serviceName }, metrics);
 
 const loggerFactory: LoggerFactory = new LoggerFactory(serviceName, logging);
 const metricsClient: MetricsClient = new MetricsClient(metricsConfig);
 const routeFactory: RouteFactory = new RouteFactory(
     metricsClient,
-    loggerFactory.getLogger('loader.routes'),
-    Config.getConfig()
+    loggerFactory.getLogger('routes'),
+    configSource.getConfig()
 );
 
-export const Globals: IGlobals = {
-    Config,
+// tslint:disable-line:variable-name
+export const Globals = {
+    // tslint:disable-line:variable-name
+    AuthCheck: hurleyAuthCheck.using({
+        Config: configSource,
+        Logger: loggerFactory,
+        metrics: metricsClient,
+    }),
+    Config: configSource,
     LoggerFactory: loggerFactory,
     RouteFactory: routeFactory,
     metrics: metricsClient,
     serviceName,
 };
+
+export type IGlobals = typeof Globals;

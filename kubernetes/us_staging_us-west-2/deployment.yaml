@@ -65,6 +65,7 @@ spec:
         volumeMounts:
         - mountPath: /usr/src/app/config
           name: config-volume
+      serviceAccountName: chameleon
       volumes:
       - configMap:
           name: chameleon-0.0.2

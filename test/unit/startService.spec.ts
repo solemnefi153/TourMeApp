@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Home Box Office, Inc. as an unpublished
+ * Copyright (c) 2019 Home Box Office, Inc. as an unpublished
  * work. Neither this material nor any portion hereof may be copied or
  * distributed without the express written consent of Home Box Office, Inc.
  *
@@ -10,28 +10,50 @@
  */
 
 describe('startService', () => {
-    const acConfig = { accessControlMaxAge: 'someValue' };
+    const acConfig = {
+        accessControlMaxAge: 'someValue',
+        aws: {
+            postgres: {
+                credentialPrefix: {
+                    migrate: 'ddl',
+                    read: 'ro',
+                    write: 'rw',
+                },
+                primary: {
+                    database: 'unittest',
+                },
+                secretsVersion: 1,
+                vaultFilePath: 'unittest/vault/path',
+            },
+        },
+        logging: {
+            level: 'debug',
+        },
+        meta: {
+            env: 'development',
+        },
+        requestSignatures: {
+            chameleon: {
+                fileName: 'signature',
+                path: 'secret/hurley/chameleon/unittest',
+                version: 1,
+            },
+            credentials: {
+                fileName: 'signature',
+                path: 'secret/hurley/credentials/unittest',
+                version: 1,
+            },
+        },
+    };
     const config = {
         getConfig: jest.fn().mockName('mockedConfig').mockReturnValue(acConfig),
     };
 
-    const compressionResult = { key: 'compressionResult' };
-    const compression = jest
-        .fn()
-        .mockName('mockedCompression')
-        .mockReturnValue(compressionResult);
-
     const addCORS = { key: 'CORS' };
-    const hurleyHttp = {
-        addCORSHeader: jest
-            .fn()
-            .mockName('mockedHurleyHTTP')
-            .mockReturnValue(addCORS),
-    };
 
     class FakeService {
         public callback: any;
-        public constructor(public arg1: any) {
+        constructor(public arg1: any) {
             this.callback = arg1.onAppInit;
         }
 
@@ -44,8 +66,8 @@ describe('startService', () => {
             return Promise.resolve().then(callback);
         }
     }
-
     let service: FakeService | null;
+
     const hurleyService = jest
         .fn()
         .mockName('mockedHurleySvc')
@@ -56,39 +78,75 @@ describe('startService', () => {
             return service;
         });
 
+    jest.mock('@hbo/hurley-loader', () => ({
+        HurleyService: hurleyService,
+        loadSchemaWithUri: jest.fn(),
+    }));
     const stubbedLogger = jest.fn().mockName('mockedLogger#error');
+
     const logger = {
         getLogger: jest
             .fn()
             .mockName('mockedLoggerFactory')
             .mockReturnValue({ error: stubbedLogger }),
     };
-
-    const metricsClient = { key: 'metricsClient' };
-
+    const metricsClient = {
+        key: 'metricsClient',
+        subMetrics: jest.fn(),
+    };
     const serviceName = 'testService';
 
+    const mockAuthCheck = {
+        Authentication: {
+            initialize: jest.fn(),
+        },
+        Secrets: {
+            create: jest.fn(),
+            implementations: {},
+            keys: {},
+        },
+        TokenGenerator: jest.fn().mockImplementation(),
+    };
     jest.mock('../../src/Globals', () => ({
         Globals: {
             serviceName,
             LoggerFactory: logger,
             Config: config,
             metrics: metricsClient,
+            AuthCheck: mockAuthCheck,
         },
     }));
 
+    const hurleyHttp = {
+        addCORSHeader: jest
+            .fn()
+            .mockName('mockedHurleyHTTP')
+            .mockReturnValue(addCORS),
+    };
     jest.mock('@hbo/hurley-http', () => hurleyHttp);
 
-    jest.mock('@hbo/hurley-loader', () => ({
-        HurleyService: hurleyService,
-    }));
+    jest.mock('@hbo/hurley-postgres');
 
+    const compressionResult = { key: 'compressionResult' };
+    const compression = jest
+        .fn()
+        .mockName('mockedCompression')
+        .mockReturnValue(compressionResult);
     jest.mock('compression', () => compression);
+
+    const extractSecret = {
+        loadSecretWithVersionFile: jest.fn(),
+    };
+    jest.mock('../../src/util/extractSecret', () => extractSecret);
 
     const startServiceModule = require('../../src/startService');
 
     beforeEach(() => {
         service = null;
+        extractSecret.loadSecretWithVersionFile = jest
+            .fn()
+            .mockReturnValue({ v1: 'mockSecret' });
+        jest.clearAllMocks();
     });
 
     it('initializes the service with correct arguments', (done) => {
