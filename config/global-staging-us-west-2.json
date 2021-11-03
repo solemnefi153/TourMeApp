@@ -1,11 +1,11 @@
 {
     "_comment": "Do not modify this file! This is auto generated! Please modify master.config.json only.",
     "meta": {
-        "name": "us-production-us-east-1",
-        "env": "production",
-        "region": "us-east-1",
+        "name": "global-staging-us-west-2",
+        "env": "staging",
+        "region": "us-west-2",
         "deploy": "cluster",
-        "market": "us",
+        "market": "global",
         "service": "chameleon",
         "toolVersion": "2.2.0",
         "fileVersion": "1.0"
@@ -19,7 +19,7 @@
     "vaultConfig": {
         "endpoint": "https://vault.api.hbo.com",
         "approle": "service-chameleon",
-        "kubernetesAuthClusterId": "hurley-production-us-east-1"
+        "kubernetesAuthClusterId": "hurley-nonprod-us-west-2"
     },
     "logging": {
         "src": false,
@@ -47,18 +47,18 @@
     },
     "requestSignatures": {
         "chameleon": {
-            "path": "secret/hurley/chameleon/production",
+            "path": "secret/hurley/chameleon/staging",
             "fileName": "signature",
             "version": 1
         },
         "credentials": {
-            "path": "secret/hurley/credentials/production",
+            "path": "secret/hurley/credentials/staging",
             "fileName": "signature",
             "version": 1
         }
     },
     "aws": {
-        "region": "us-east-1",
+        "region": "us-west-2",
         "postgres": {
             "credentialPrefix": {
                 "migrate": "ddl",
@@ -75,11 +75,20 @@
                 "size": 3,
                 "idleTimeout": 1800000
             },
-            "vaultFilePath": "dre/service/chameleon/us/production",
-            "h:postgresInstances": "production"
+            "vaultFilePath": "dre/service/chameleon/global/staging",
+            "primary": {
+                "host": "chameleon-global-pgsql-staging-v1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+                "database": "chameleon_global"
+            },
+            "replicas": [
+                {
+                    "host": "chameleon-global-pgsql-staging-v1-oregon-replica-1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+                    "database": "chameleon_global"
+                }
+            ]
         }
     },
-    "demoOnly": "productionInCluster",
+    "demoOnly": "defaultValue",
     "references": {
         "demo": {
             "url": "http://demo",
