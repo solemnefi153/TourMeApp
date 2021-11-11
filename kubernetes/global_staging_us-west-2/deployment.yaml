@@ -2,12 +2,12 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   annotations:
-    kubernetes.io/change-cause: 'Release: 0.0.2'
+    kubernetes.io/change-cause: 'Release: 0.0.3'
   labels:
     maintainer: data-reliability
     service: chameleon
   name: chameleon
-  namespace: snp
+  namespace: staging
 spec:
   minReadySeconds: 10
   replicas: 2
@@ -30,7 +30,7 @@ spec:
       containers:
       - env:
         - name: NODE_ENV
-          value: snp
+          value: staging
         - name: JAEGER_AGENT_HOST
           valueFrom:
             fieldRef:
@@ -42,8 +42,8 @@ spec:
         - name: JAEGER_SAMPLER_PARAM
           value: "0.09"
         - name: K8S_DEPLOYMENT_NONCE
-          value: "1633621762"
-        image: 971383676178.dkr.ecr.us-west-2.amazonaws.com/chameleon:0.0.2.bd4cb35
+          value: "1635899364"
+        image: 250507473252.dkr.ecr.us-west-2.amazonaws.com/chameleon:0.0.3
         livenessProbe:
           httpGet:
             path: /healthcheck?from=k8s
@@ -68,5 +68,5 @@ spec:
       serviceAccountName: chameleon
       volumes:
       - configMap:
-          name: chameleon-0.0.2
+          name: chameleon-0.0.3
         name: config-volume

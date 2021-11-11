@@ -1,11 +1,11 @@
 {
     "_comment": "Do not modify this file! This is auto generated! Please modify master.config.json only.",
     "meta": {
-        "name": "us-snp-us-west-2",
+        "name": "global-snp-us-west-2",
         "env": "snp",
         "region": "us-west-2",
         "deploy": "cluster",
-        "market": "us",
+        "market": "global",
         "service": "chameleon",
         "toolVersion": "2.2.0",
         "fileVersion": "1.0"
@@ -75,7 +75,7 @@
                 "size": 3,
                 "idleTimeout": 1800000
             },
-            "vaultFilePath": "dre/service/chameleon/us/snp",
+            "vaultFilePath": "dre/service/chameleon/global/snp",
             "primary": {
                 "host": "chameleon-global-pgsql-snp-v1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
                 "database": "chameleon_global"

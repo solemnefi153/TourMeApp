@@ -18,81 +18,18 @@
       "market": "N/A test-only-env"
     },
     {
-      "name": "emea-production-eu-central-1",
-      "env": "production",
-      "region": "eu-central-1",
-      "deploy": "cluster",
-      "market": "emea"
-    },
-    {
-      "name": "emea-production-eu-west-1",
-      "env": "production",
-      "region": "eu-west-1",
-      "deploy": "cluster",
-      "market": "emea"
-    },
-    {
-      "name": "us-production-us-west-2",
-      "env": "production",
-      "region": "us-west-2",
-      "deploy": "cluster",
-      "market": "us"
-    },
-    {
-      "name": "us-production-us-east-1",
-      "env": "production",
-      "region": "us-east-1",
-      "deploy": "cluster",
-      "market": "us"
-    },
-    {
-      "name": "us-production-us-east-2",
-      "env": "production",
-      "region": "us-east-2",
-      "deploy": "cluster",
-      "market": "us"
-    },
-    {
-      "name": "latam-production-us-east-1",
-      "env": "production",
-      "region": "us-east-1",
-      "deploy": "cluster",
-      "market": "latam"
-    },
-    {
-      "name": "latam-production-us-east-2",
-      "env": "production",
-      "region": "us-east-2",
-      "deploy": "cluster",
-      "market": "latam"
-    },
-    {
-      "name": "us-snp-us-west-2",
+      "name": "global-snp-us-west-2",
       "env": "snp",
       "region": "us-west-2",
       "deploy": "cluster",
-      "market": "us"
+      "market": "global"
     },
     {
-      "name": "us-snp-us-east-1",
-      "env": "snp",
-      "region": "us-east-1",
-      "deploy": "cluster",
-      "market": "us"
-    },
-    {
-      "name": "us-staging-us-west-2",
+      "name": "global-staging-us-west-2",
       "env": "staging",
       "region": "us-west-2",
       "deploy": "cluster",
-      "market": "us"
-    },
-    {
-      "name": "us-staging-us-east-1",
-      "env": "staging",
-      "region": "us-east-1",
-      "deploy": "cluster",
-      "market": "us"
+      "market": "global"
     }
   ],
   "references": [
@@ -118,28 +55,7 @@
         "kubernetesAuthClusterId": "hurley-nonprod-{{region}}"
       },
       "endpoint": "https://vault.api.hbo.com",
-      "approle": "service-chameleon",
-      "when:market=us": {
-        "when:env=production": {
-          "kubernetesAuthClusterId": "hurley-production-{{region}}",
-          "when:region=us-east-2": {
-            "kubernetesAuthClusterId": "dtc-hbogo_prod_hurleyus_{{region}}_1"
-          }
-        },
-        "when:env=staging": {
-          "kubernetesAuthClusterId": "hurley-nonprod-us-west-2"
-        }
-      },
-      "when:market=latam": {
-        "when:env=production": {
-          "kubernetesAuthClusterId": "dtc-prod_prod_hurleylatam_{{region}}_1"
-        }
-      },
-      "when:market=emea": {
-        "when:env=production": {
-          "kubernetesAuthClusterId": "dtc-prod_prod_hurleyeu_{{region}}_1"
-        }
-      }
+      "approle": "service-chameleon"
     },
     "logging": {
       "src": false,
