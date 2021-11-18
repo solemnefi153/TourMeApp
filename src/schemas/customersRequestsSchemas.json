@@ -1,0 +1,108 @@
+{
+  "createCustomerRequestSchema": {
+    "body": {
+      "title": "Body schema for POST /customers",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "firstName",
+        "lastName",
+        "phoneNumber"
+      ],
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "pattern": "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+"
+        },
+        "lastName": {
+          "type": "string",
+          "pattern": "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+"
+        }, 
+        "phoneNumber": {
+          "type": "string",
+          "pattern": "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$"
+        }
+      }
+    }
+  },
+  "fetchCustomerRequestSchema": {
+    "params": {
+      "title": "Query schema for GET /customers/:customerId",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "customerId"
+      ],
+      "properties": {
+        "customerId": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "updateCustomerRequestSchema": {
+    "params": {
+      "title": "Query schema for PUT /customers/:customerId",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "customerId"
+      ],
+      "properties": {
+        "customerId": {
+          "type": "string"
+        }
+      }
+    },
+    "body": {
+      "title": "Body schema for PUT /customers/:customerId",
+      "type": "object",
+      "additionalProperties": true,
+      "required": [ ],
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "pattern": "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+"
+        },
+        "lastName": {
+          "type": "string",
+          "pattern": "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+"
+        }, 
+        "phoneNumber": {
+          "type": "string",
+          "pattern": "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$"
+        }
+      }
+    }
+  },
+  "deleteCustomerRequestSchema": {
+    "params": {
+      "title": "Query schema for DELETE /customers/:customerId",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "customerId"
+      ],
+      "properties": {
+        "customerId": {
+          "type": "string"
+        },
+        "fistName": {
+          "type": "string",
+          "pattern": "^\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+"
+        },
+        "lastName": {
+          "type": "string",
+          "pattern": "^\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+"
+        }, 
+        "phoneNumber": {
+          "type": "string",
+          "pattern": "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$"
+        }
+      }
+    }
+  }
+}

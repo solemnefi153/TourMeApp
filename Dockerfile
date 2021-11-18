@@ -1,4 +1,5 @@
-FROM 971383676178.dkr.ecr.us-west-2.amazonaws.com/node:14.16.1-slim
+FROM 971383676178.dkr.ecr.us-west-2.amazonaws.com/node:12.22.1-slim
+
 LABEL maintainer="data-reliability"
 
 RUN mkdir -p /usr/src/app

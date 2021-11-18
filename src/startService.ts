@@ -26,6 +26,7 @@ import * as http from 'http';
 
 import { Globals } from './Globals';
 import { loadSecretWithVersionFile } from './util/extractSecret';
+import { IServerData } from './serviceTypes';
 
 const { serviceName, Config, LoggerFactory, metrics } = Globals;
 
@@ -57,6 +58,13 @@ export async function startService(): Promise<http.Server> {
         },
     };
 
+    // const chameleonRequestSignature = config.requestSignatures.chameleon;
+    // const chameleonSignatureLookup = await loadSecretWithVersionFile<
+    //     Record<string, string>
+    // >(chameleonRequestSignature.path, chameleonRequestSignature.fileName);
+    // const chameleonSignature =
+    //     chameleonSignatureLookup[`v${chameleonRequestSignature.version}`];
+
     const credentialsRequestSignature = config.requestSignatures.credentials;
     const credentialsSignatureLookup = await loadSecretWithVersionFile<
         Record<string, string>
@@ -64,14 +72,22 @@ export async function startService(): Promise<http.Server> {
     const credentialsSignature =
         credentialsSignatureLookup[`v${credentialsRequestSignature.version}`];
 
-    const dbClient = await initPostgresClient({
-        ...config.aws.postgres,
+    const postgresConfig: IPostgresInitConfig = {
+        primary: config.aws.postgres.primary,
+        replicas: config.aws.postgres.replicas,
         credentials,
-        debugEnabled: config.logging.level === 'debug',
-        eventEmitter: new events.EventEmitter(),
+        port: config.aws.postgres.port,
         logger: LoggerFactory.getLogger('pgClient'),
         metrics: metrics.subMetrics('postgres.client'),
-    } as IPostgresInitConfig);
+        eventEmitter: new events.EventEmitter(),
+        debugEnabled: config.logging.level === 'debug',
+    };
+
+    const dbClient = await initPostgresClient(postgresConfig);
+
+    const serverData: IServerData = {
+        databaseClient: dbClient,
+    };
 
     const service = new HurleyService({
         loader: {
@@ -89,10 +105,7 @@ export async function startService(): Promise<http.Server> {
             enabled: true,
         },
         useFirst: [addCORS],
-        userData: {
-            credentialsSignature,
-            dbClient,
-        },
+        userData: serverData,
     });
 
     // loadSchema manually

@@ -10,3 +10,7 @@ COPY migrations        ./migrations
 COPY postgres_tools    ./postgres_tools
 COPY config            ./tools_config
 COPY package.json       package.json
+
+EXPOSE 3000
+
+ENTRYPOINT ["node", "./dist/lib/server.js"]

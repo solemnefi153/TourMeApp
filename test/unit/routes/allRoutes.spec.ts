@@ -16,8 +16,10 @@ import { getHealthcheck } from '../../../src/controllers/healthcheckController';
 import { Globals } from '../../../src/Globals';
 import * as exampleRoute from '../../../src/routes/exampleRoute';
 import * as healthcheckRoute from '../../../src/routes/healthcheck';
+import * as customers from '../../../src/routes/customers';
 
 import postExampleSchema = require('../../../src/schemas/exampleRequestSchema.json');
+import { IServerData } from '../../../src/serviceTypes';
 
 describe('routes', () => {
     beforeEach(() => {
@@ -51,6 +53,14 @@ describe('routes', () => {
                 postExampleSchema,
                 [exampleHandler]
             );
+        });
+    });
+
+    describe('customers', () => {
+        it('creates the expected routes', () => {
+            const serverData: IServerData = {} as any;
+            const routes = customers.createRoutes(serverData);
+            expect(routes.length).toEqual(5);
         });
     });
 });

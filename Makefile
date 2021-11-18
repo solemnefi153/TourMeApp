@@ -46,18 +46,22 @@ docker: ensure-configs ## Build docker image for this service using current `nod
 start-dependencies: ## Starts service dependencies
 	make docker-network-create
 	make start-statsd version=$(STATSD_VERSION)
+	make postgres-migrate-start-docker
+	${INFO}"$(call HLIGHT,All dependencies) have started"
 
 stop-dependencies: ## Stops service dependencies
 	${INFO}"Stopping $(call HLIGHT,dependencies...)"
 	make stop-statsd
+	make stop-postgres
 	make docker-network-remove
 	${OK}"...dependencies stopped."
 
 start: stop ## Start (node-start) service for development
 	${INFO}"Starting $(call HLIGHT,$(ARTIFACT_NAME))..."
 	make start-dependencies
-	make node-start
+	make node-start EXTRA_DOCKER_ARGS='-e VAULT_TOKEN=$(VAULT_TOKEN)'
 	${OK}"...started!"
+
 
 service-test: ## Starts service in docker container, runs healthcheck and stops it
 	make start-integration mode=docker
