@@ -20,11 +20,11 @@ targets:
 - name: release
   type: ecr
   dependsOn: preparation
-- name: us_staging_us-west-2
+- name: global_staging_us-west-2
   type: kubernetes
   dependsOn: release
   config:
-    market: us
+    market: global
     region: us-west-2
     env: staging
   gates:
