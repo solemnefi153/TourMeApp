@@ -25,11 +25,11 @@
       "market": "global"
     },
     {
-      "name": "global-staging-us-west-2",
+      "name": "us-staging-us-west-2",
       "env": "staging",
       "region": "us-west-2",
       "deploy": "cluster",
-      "market": "global"
+      "market": "us"
     }
   ],
   "references": [
@@ -129,7 +129,7 @@
           "idleTimeout": 1800000
         },
         "when:deploy=cluster": {
-          "vaultFilePath": "dre/service/chameleon/{{market}}/{{env}}"
+          "vaultFilePath": "dre/service/chameleon/global/{{env}}"
         },
         "vaultFilePath": "secret/hurley/chameleon/{{env}}",
         "when:env=production": {
