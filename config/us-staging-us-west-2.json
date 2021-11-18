@@ -77,12 +77,12 @@
             },
             "vaultFilePath": "dre/service/chameleon/global/staging",
             "primary": {
-                "host": "chameleon-global-pgsql-staging-v1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+                "host": "chameleon-global-pgsql-staging-v1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com",
                 "database": "chameleon_global"
             },
             "replicas": [
                 {
-                    "host": "chameleon-global-pgsql-staging-v1-oregon-replica-1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com:5432",
+                    "host": "chameleon-global-pgsql-staging-v1-oregon-replica-1.clt6nsvq4jtj.us-west-2.rds.amazonaws.com",
                     "database": "chameleon_global"
                 }
             ]
