@@ -145,5 +145,5 @@ release-prepare: ## Prepares the release for this project
 create-configmaps: ## Creates configmap files for all environments
 	${INFO}"Creating configmaps..."
 	$(call create-configmap,$(ARTIFACT_NAME),snp.json=config/global-snp-us-west-2.json,kubernetes/global_snp_us-west-2/configmap.yaml)
-	$(call create-configmap,$(ARTIFACT_NAME),staging.json=config/global-staging-us-west-2.json,kubernetes/global_staging_us-west-2/configmap.yaml)
+	$(call create-configmap,$(ARTIFACT_NAME),staging.json=config/us-staging-us-west-2.json,kubernetes/us_staging_us-west-2/configmap.yaml)
 	${OK}"...configmaps created."
