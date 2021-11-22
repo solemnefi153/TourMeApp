@@ -23,8 +23,6 @@ BEGIN
 END;
 $BODY$;
 
-GRANT ALL PRIVILEGES ON FUNCTION public.show_user TO migrations_user;
-
 -- Extensions should live outside the schema
 DO $$
 BEGIN
