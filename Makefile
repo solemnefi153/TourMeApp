@@ -142,6 +142,11 @@ release-prepare: ## Prepares the release for this project
 	make k8s-prepare-deployment
 	${OK}"...release prepared."
 
+release-publish:
+	${INFO} "Publishing the release..."
+	@make -s migration-images
+	@make -s docker-publish region=us-west-2 repository=$(ARTIFACT_NAME) tag=$(ARTIFACT_IMAGE_TAG)
+
 create-configmaps: ## Creates configmap files for all environments
 	${INFO}"Creating configmaps..."
 	$(call create-configmap,$(ARTIFACT_NAME),snp.json=config/global-snp-us-west-2.json,kubernetes/global_snp_us-west-2/configmap.yaml)
