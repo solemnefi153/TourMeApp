@@ -1,4 +1,4 @@
-FROM 971383676178.dkr.ecr.us-west-2.amazonaws.com/node:8.15.1-slim
+FROM 971383676178.dkr.ecr.us-west-2.amazonaws.com/node:12.22.1-slim
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
