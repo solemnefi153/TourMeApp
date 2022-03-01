@@ -1,0 +1,47 @@
+{
+    "queries": {
+        "insertCustomer": {
+            "queryPlaceholder": "INSERT INTO customers (first_name, last_name, phone_number) VALUES (${firstName}, ${lastName}, ${phoneNumber}) RETURNING *",
+            "queryParameters": [
+                "firstName",
+                "lastName",
+                "phoneNumber"
+            ],
+            "transaction": true,
+            "resultType" : 1
+        },
+        "selectAllCustomers": {
+            "queryPlaceholder": "SELECT * FROM customers",
+            "queryParameters": [],
+            "transaction": false,
+            "resultType" : 3
+        },
+        "selectCustomerById": {
+            "queryPlaceholder": "SELECT * FROM customers WHERE customer_id = ${customerId}",
+            "queryParameters": [
+                "customerId"
+            ],
+            "transaction": false,
+            "resultType" : 1
+        },
+        "updateCustomerById": {
+            "queryPlaceholder": "'UPDATE customers SET first_name= ${firstName}, last_name = ${lastName}, phone_number = ${phoneNumber} WHERE customer_id = ${customerId} RETURNING *",
+            "queryParameters": [
+                "firstName",
+                "lastName",
+                "phoneNumber",
+                "customerId"
+            ],
+            "transaction": true,
+            "resultType" : 1
+        },
+        "deleteCustomerById": {
+            "queryPlaceholder": "DELETE FROM customers WHERE customer_id = ${customerId} RETURNING *",
+            "queryParameters": [
+                "customerId"
+            ],
+            "transaction": false,
+            "resultType" : 1
+        }
+    }
+}
