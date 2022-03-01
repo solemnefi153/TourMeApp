@@ -1,0 +1,31 @@
+{
+  "dynamicRequestSchema": {
+    "body": {
+      "title": "Body schema for POST /dynamic/:queryName",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queryParameters"
+      ],
+      "properties": {
+        "queryParameters": {
+          "type": "object"
+        }
+      }
+    },
+    "params": {
+      "title": "Query schema for POST /dynamic/:queryName",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queryName"
+      ],
+      "properties": {
+        "queryName": {
+          "type": "string",
+          "pattern": "/^[A-Za-z]+$/"
+        }
+      }
+    }
+  }
+}
